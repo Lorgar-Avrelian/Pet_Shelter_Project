@@ -2,34 +2,33 @@
 
 -- changeset tokovenko:1
 CREATE TABLE pet (
-id DECIMAL PRIMARY KEY,
+id INTEGER PRIMARY KEY,
 name TEXT,
 birthday DATE,
-alive BOOLEAN
+alive BOOLEAN,
+pet_variety VARCHAR,
+pet_code INTEGER UNIQUE
 );
 
 -- changeset tokovenko:2
 CREATE TABLE client (
-id DECIMAL PRIMARY KEY,
+id INTEGER PRIMARY KEY,
 fio TEXT,
 address TEXT,
 birthday DATE,
 passport TEXT,
-chatId INTEGER,
+chat_id INTEGER,
 beginningDay DATE,
-petId INTEGER REFERENCES pet (id)
+pets INTEGER REFERENCES pet (pet_code)
 );
 
 -- changeset tokovenko:3
 CREATE TABLE employee (
-id DECIMAL PRIMARY KEY,
+id INTEGER PRIMARY KEY,
 fio TEXT,
 address TEXT,
 birthday DATE,
 passport TEXT,
-chatId INTEGER,
+chat_id INTEGER,
 work_position TEXT
 );
-
--- changeset tokovenko:4
-ALTER TABLE pet ADD COLUMN pet_variety VARCHAR;
