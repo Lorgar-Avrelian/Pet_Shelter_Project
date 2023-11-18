@@ -7,6 +7,13 @@ import sky.pro.Animals.service.PetServiceImpl;
 
 import java.util.Collection;
 
+/**
+ * Controller for CRUD operations with pets data
+ * <p>
+ * <hr>
+ * <p>
+ * Контроллер для CRUD операций с данными питомцев
+ */
 @RestController
 @RequestMapping(path = "/pet")
 public class PetController {

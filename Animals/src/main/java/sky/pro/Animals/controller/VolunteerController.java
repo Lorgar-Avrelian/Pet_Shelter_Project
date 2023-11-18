@@ -7,6 +7,13 @@ import sky.pro.Animals.service.VolunteerServiceImpl;
 
 import java.util.Collection;
 
+/**
+ * Controller for CRUD operations with volunteers data
+ * <p>
+ * <hr>
+ * <p>
+ * Контроллер для CRUD операций с данными волонтеров
+ */
 @RestController
 @RequestMapping(path = "/volunteer")
 public class VolunteerController {

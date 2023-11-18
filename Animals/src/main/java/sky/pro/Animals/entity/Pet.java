@@ -17,18 +17,17 @@ public class Pet {
     private boolean alive;
     private String petVariety;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_pets")
-    private int petCode;
+    private Client client;
     public Pet() {
     }
 
-    public Pet(Long id, String name, LocalDate birthday, boolean alive, String petVariety, int petCode) {
+    public Pet(Long id, String name, LocalDate birthday, boolean alive, String petVariety, Client client) {
         this.id = id;
         this.name = name;
         this.birthday = birthday;
         this.alive = alive;
         this.petVariety = petVariety;
-        this.petCode = petCode;
+        this.client = client;
     }
 
     public Long getId() {
@@ -71,12 +70,12 @@ public class Pet {
         this.petVariety = petVariety;
     }
 
-    public int getPetCode() {
-        return petCode;
+    public Client getClient() {
+        return client;
     }
 
-    public void setPetCode(int petCode) {
-        this.petCode = petCode;
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     @Override
@@ -84,12 +83,12 @@ public class Pet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Pet pet = (Pet) o;
-        return petCode == pet.petCode && Objects.equals(id, pet.id);
+        return Objects.equals(id, pet.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, petCode);
+        return Objects.hash(id);
     }
 
     @Override
@@ -100,7 +99,7 @@ public class Pet {
                 ", birthday=" + birthday +
                 ", alive=" + alive +
                 ", petVariety='" + petVariety + '\'' +
-                ", petCode=" + petCode +
+                ", client=" + client +
                 '}';
     }
 }

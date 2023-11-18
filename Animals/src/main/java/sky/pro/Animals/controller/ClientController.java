@@ -7,6 +7,13 @@ import sky.pro.Animals.service.ClientServiceImpl;
 
 import java.util.Collection;
 
+/**
+ * Controller for CRUD operations with clients data
+ * <p>
+ * <hr>
+ * <p>
+ * Контроллер для CRUD операций с данными клиентов
+ */
 @RestController
 @RequestMapping(path = "/client")
 public class ClientController {

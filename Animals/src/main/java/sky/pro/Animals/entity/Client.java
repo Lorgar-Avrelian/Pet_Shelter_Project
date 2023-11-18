@@ -19,12 +19,12 @@ public class Client {
     private String passport;
     private Integer chatId;
     @OneToMany(mappedBy = "client")
-    private Collection<Long> pets;
+    private Collection<Pet> pets;
 
     public Client() {
     }
 
-    public Client(Long id, String fio, String address, LocalDate birthday, String passport, Integer chatId, Collection<Long> pets) {
+    public Client(Long id, String fio, String address, LocalDate birthday, String passport, Integer chatId, Collection<Pet> pets) {
         this.id = id;
         this.fio = fio;
         this.address = address;
@@ -82,11 +82,11 @@ public class Client {
         this.chatId = chatId;
     }
 
-    public Collection<Long> getPets() {
+    public Collection<Pet> getPets() {
         return pets;
     }
 
-    public void setPets(Collection<Long> pets) {
+    public void setPets(Collection<Pet> pets) {
         this.pets = pets;
     }
 
