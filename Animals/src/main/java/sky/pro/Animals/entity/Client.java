@@ -13,19 +13,27 @@ public class Client {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
+    private String firstName;
+    private String lastName;
+    private String userName;
     private String fio;
     private String address;
     private LocalDate birthday;
     private String passport;
-    private Integer chatId;
+    private Long chatId;
     @OneToMany(mappedBy = "client")
     private Collection<Pet> pets;
 
     public Client() {
     }
 
-    public Client(Long id, String fio, String address, LocalDate birthday, String passport, Integer chatId, Collection<Pet> pets) {
+    public Client(Long id, String firstName, String lastName,
+                  String userName, String fio, String address,
+                  LocalDate birthday, String passport, Long chatId, Collection<Pet> pets) {
         this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userName = userName;
         this.fio = fio;
         this.address = address;
         this.birthday = birthday;
@@ -40,6 +48,30 @@ public class Client {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getFio() {
@@ -74,11 +106,11 @@ public class Client {
         this.passport = passport;
     }
 
-    public Integer getChatId() {
+    public Long getChatId() {
         return chatId;
     }
 
-    public void setChatId(Integer chatId) {
+    public void setChatId(Long chatId) {
         this.chatId = chatId;
     }
 
@@ -91,22 +123,12 @@ public class Client {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Client client = (Client) o;
-        return Objects.equals(id, client.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
     public String toString() {
         return "Client{" +
                 "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", userName='" + userName + '\'' +
                 ", fio='" + fio + '\'' +
                 ", address='" + address + '\'' +
                 ", birthday=" + birthday +
@@ -114,5 +136,18 @@ public class Client {
                 ", chatId=" + chatId +
                 ", pets=" + pets +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return Objects.equals(id, client.id) && Objects.equals(firstName, client.firstName) && Objects.equals(lastName, client.lastName) && Objects.equals(userName, client.userName) && Objects.equals(fio, client.fio) && Objects.equals(address, client.address) && Objects.equals(birthday, client.birthday) && Objects.equals(passport, client.passport) && Objects.equals(chatId, client.chatId) && Objects.equals(pets, client.pets);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, lastName, userName, fio, address, birthday, passport, chatId, pets);
     }
 }
