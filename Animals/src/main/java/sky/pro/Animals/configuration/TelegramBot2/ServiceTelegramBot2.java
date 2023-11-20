@@ -18,14 +18,18 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import sky.pro.Animals.entity.Client;
+import sky.pro.Animals.entity.User;
 import sky.pro.Animals.repository.ClientRepository;
+import sky.pro.Animals.repository.UserRepository;
 
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 @Component
 public class ServiceTelegramBot2 extends TelegramLongPollingBot{
-
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
    private ClientRepository clientRepository;
         Logger LOG = LoggerFactory.getLogger(ServiceTelegramBot2.class);
@@ -75,7 +79,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
                 ReplyKeyboardMarkup replyKeyboardMarkup = null;//кнопки для всех команд
 
 
-                switch (message) {     //применяем методы которые сами пишем ниже
+                switch (message) {     //в командах применяем методы которые сами пишем ниже
                     case "/start":
 
                         startCommand(chatId, update.getMessage().getChat().getFirstName());
@@ -224,18 +228,24 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
             }
         }
 
+    /**
+     * Метод для записи в таблицу простых посетителей (НЕ КЛИЕНТОВ)
+     * При помощи {@link UserRepository#findById(Object)} проверяем на наличие.
+     * При помощи {@link UserRepository#save(Object)} сохраняем посетителя в таблицу UsersData.
+     * @param message
+     */
         private void registerUsers(Message message) {
-            if (clientRepository.findById(message.getChatId()).isEmpty()) {//если чатайди пуст
+            if (userRepository.findById(message.getChatId()).isEmpty()) {//если чатайди пуст
                 Long chatId = message.getChatId();                       //то нужно создать новый
                 var chat = message.getChat();
-                Client newUser = new Client();
+                User newUser = new User();
 
                 newUser.setChatId(chatId);
                 newUser.setFirstName(chat.getFirstName());
                 newUser.setLastName(chat.getLastName());
                 newUser.setUserName(chat.getUserName());
-//                newUser.setRegisteredAt(new Timestamp(System.currentTimeMillis()));
-                clientRepository.save(newUser);
+                newUser.setRegisteredAt(new Timestamp(System.currentTimeMillis()));
+                userRepository.save(newUser);
                 LOG.info("user saved : " + newUser);
 
             }
