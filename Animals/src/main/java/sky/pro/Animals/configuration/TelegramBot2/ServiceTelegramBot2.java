@@ -86,12 +86,12 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
 
                     case "/Приют для кошек":
 
-                        String c = "вы попали в кошачий приют";
+                        String c = "Вас приветствует кошачий приют";
                         sendMessage(replyKeyboardMarkup,chatId,c);
                         break;
 
                     case "/Приют для собак":
-                        String d = "вы попали в собачий приют";
+                        String d = "Вас приветствует собачий приют";
                         sendMessage(replyKeyboardMarkup,chatId,d);
                         break;
 
@@ -376,6 +376,8 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
 
             }
         }
+
+
 
 
 
