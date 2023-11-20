@@ -16,7 +16,7 @@ public class Client {
     private String firstName;
     private String lastName;
     private String userName;
-    private String fio;
+
     private String address;
     private LocalDate birthday;
     private String passport;
@@ -28,13 +28,13 @@ public class Client {
     }
 
     public Client(Long id, String firstName, String lastName,
-                  String userName, String fio, String address,
+                  String userName,  String address,
                   LocalDate birthday, String passport, Long chatId, Collection<Pet> pets) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
-        this.fio = fio;
+
         this.address = address;
         this.birthday = birthday;
         this.passport = passport;
@@ -74,13 +74,7 @@ public class Client {
         this.userName = userName;
     }
 
-    public String getFio() {
-        return fio;
-    }
 
-    public void setFio(String fio) {
-        this.fio = fio;
-    }
 
     public String getAddress() {
         return address;
@@ -129,7 +123,7 @@ public class Client {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", userName='" + userName + '\'' +
-                ", fio='" + fio + '\'' +
+
                 ", address='" + address + '\'' +
                 ", birthday=" + birthday +
                 ", passport='" + passport + '\'' +
@@ -143,11 +137,11 @@ public class Client {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Client client = (Client) o;
-        return Objects.equals(id, client.id) && Objects.equals(firstName, client.firstName) && Objects.equals(lastName, client.lastName) && Objects.equals(userName, client.userName) && Objects.equals(fio, client.fio) && Objects.equals(address, client.address) && Objects.equals(birthday, client.birthday) && Objects.equals(passport, client.passport) && Objects.equals(chatId, client.chatId) && Objects.equals(pets, client.pets);
+        return Objects.equals(id, client.id) && Objects.equals(firstName, client.firstName) && Objects.equals(lastName, client.lastName) && Objects.equals(userName, client.userName) && Objects.equals(address, client.address) && Objects.equals(birthday, client.birthday) && Objects.equals(passport, client.passport) && Objects.equals(chatId, client.chatId) && Objects.equals(pets, client.pets);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, userName, fio, address, birthday, passport, chatId, pets);
+        return Objects.hash(id, firstName, lastName, userName,  address, birthday, passport, chatId, pets);
     }
 }
