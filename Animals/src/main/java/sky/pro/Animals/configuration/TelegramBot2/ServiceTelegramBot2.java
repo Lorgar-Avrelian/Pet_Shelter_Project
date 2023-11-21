@@ -92,6 +92,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
 
                         String c = "Вас приветствует кошачий приют";
                         sendMessage(replyKeyboardMarkup,chatId,c);
+                        buttonForAgeCat(chatId);
                         break;
 
                     case "/Приют для собак":
@@ -113,7 +114,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
                     default:
 
                         sendMessage(replyKeyboardMarkup, chatId, ("извините,такой команды пока нет"));
-
+                        buttonsForDefault();
 
                 }
             }
@@ -127,8 +128,8 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
                 long messageID = update.getCallbackQuery().getMessage().getMessageId();//получаем инфу по message  через update.getCallbackQuery()потомучто в updata сообщения нет
                 long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-                if (callBackData.equals("YES_BUTTON")) {
-                    String text = "you pressed YES Button";
+                if (callBackData.equals("ageCat1")) {
+                    String text = "you pressed ageCat1";
                     EditMessageText message = new EditMessageText();
                     message.setChatId(String.valueOf(chatId));
                     message.setText(text);
@@ -140,8 +141,35 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
 
                     }
 
-                } else if (callBackData.equals("NO_BUTTON")) {
-                    String text = "you pressed NO Button";
+                }
+                else if (callBackData.equals("ageCat2")) {
+                    String text = "you pressed ageCat2";
+                    EditMessageText message = new EditMessageText();
+                    message.setChatId(String.valueOf(chatId));
+                    message.setText(text);
+                    message.setMessageId((int) messageID);//отправляем message с определенным ID
+                    try {
+                        execute(message);
+                    } catch (TelegramApiException e) {
+                        LOG.error("Error occurred : " + e.getMessage());
+
+                    }
+                }
+                else if (callBackData.equals("ageCat3")) {
+                    String text = "you pressed ageCat3";
+                    EditMessageText message = new EditMessageText();
+                    message.setChatId(String.valueOf(chatId));
+                    message.setText(text);
+                    message.setMessageId((int)messageID);//отправляем message с определенным ID
+                    try {
+                        execute(message);
+                    } catch (TelegramApiException e) {
+                        LOG.error("Error occurred : " + e.getMessage());
+
+                    }
+                }
+                else if (callBackData.equals("ageCat4")) {
+                    String text = "you pressed ageCat4";
                     EditMessageText message = new EditMessageText();
                     message.setChatId(String.valueOf(chatId));
                     message.setText(text);
@@ -187,6 +215,59 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot{
 
 
         }
+
+    private void buttonForAgeCat(Long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText("Выберите предпочтительный возраст ");
+
+        InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+
+
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
+
+
+        var ageButton1 = new InlineKeyboardButton();
+        ageButton1.setText("от 1 до 6 месяцев ");
+        ageButton1.setCallbackData("ageCat1");
+
+        var ageButton2 = new InlineKeyboardButton();
+        ageButton2.setText("от 6 месяцев до 1 года ");
+        ageButton2.setCallbackData("ageCat2");
+
+        var ageButton3 = new InlineKeyboardButton();
+        ageButton3.setText("от 1 года до 2 лет ");
+        ageButton3.setCallbackData("ageCat3");
+
+        var ageButton4 = new InlineKeyboardButton();
+        ageButton4.setText("от 2 лет и выше ");
+        ageButton4.setCallbackData("ageCat4");
+
+        rowInline1.add(ageButton1);
+        rowInline1.add(ageButton2);
+        rowInline2.add(ageButton3);
+        rowInline2.add(ageButton4);
+
+        rowsInLine.add(rowInline1);
+        rowsInLine.add(rowInline2);
+
+        markupInLine.setKeyboard(rowsInLine);
+
+        message.setReplyMarkup(markupInLine);
+
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            LOG.error("Error occurred : " + e.getMessage());
+
+        }
+    }
+
+
 
     /**
      * Аналог метода {@link ServiceTelegramBot2#buttonForShelters(Long chatId)}

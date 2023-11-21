@@ -55,6 +55,7 @@ public class PetServiceImpl implements PetService {
         return petRepository.findById(id).get();
     }
 
+
     /**
      * Method for saving pet in DB. <br>
      * Used repository method {@link JpaRepository#save(Object)}
