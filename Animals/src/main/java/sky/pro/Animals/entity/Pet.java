@@ -3,10 +3,10 @@ package sky.pro.Animals.entity;
 import sky.pro.Animals.model.PetVariety;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.Objects;
 
-import static javax.persistence.GenerationType.*;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "pet")
@@ -15,7 +15,7 @@ public class Pet {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
     private String name;
-    private LocalDate birthday;
+    private Date birthday;
     private boolean alive;
     private PetVariety petVariety;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -23,7 +23,7 @@ public class Pet {
     public Pet() {
     }
 
-    public Pet(Long id, String name, LocalDate birthday, boolean alive, PetVariety petVariety, Client client) {
+    public Pet(Long id, String name, Date birthday, boolean alive, PetVariety petVariety, Client client) {
         this.id = id;
         this.name = name;
         this.birthday = birthday;
@@ -48,11 +48,11 @@ public class Pet {
         this.name = name;
     }
 
-    public LocalDate getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(LocalDate birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 
