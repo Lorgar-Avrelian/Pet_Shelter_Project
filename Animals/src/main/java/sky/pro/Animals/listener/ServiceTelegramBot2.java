@@ -17,20 +17,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import sky.pro.Animals.configuration.TelegramBotConfig2;
-import sky.pro.Animals.entity.User;
-import sky.pro.Animals.repository.ClientRepository;
-import sky.pro.Animals.repository.UserRepository;
+import sky.pro.Animals.entity.Client;
+import sky.pro.Animals.service.ClientServiceImpl;
 import sky.pro.Animals.service.InfoServiceImpl;
 
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class ServiceTelegramBot2 extends TelegramLongPollingBot {
-    private final UserRepository userRepository;
-    private final ClientRepository clientRepository;
+    private final ClientServiceImpl clientService;
     private final InfoServiceImpl infoService;
     private final TelegramBotConfig2 botConfig;
     Logger LOG = LoggerFactory.getLogger(ServiceTelegramBot2.class);
@@ -41,9 +38,8 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             "Команда /help чтобы увидеть это сообщение снова\n\n";
 
 
-    public ServiceTelegramBot2(UserRepository userRepository, ClientRepository clientRepository, InfoServiceImpl infoService, TelegramBotConfig2 botConfig) {
-        this.userRepository = userRepository;
-        this.clientRepository = clientRepository;
+    public ServiceTelegramBot2(ClientServiceImpl clientService, InfoServiceImpl infoService, TelegramBotConfig2 botConfig) {
+        this.clientService = clientService;
         this.infoService = infoService;
         this.botConfig = botConfig;
         //меню для бота в кострукторе
@@ -190,25 +186,25 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
     }
 
     /**
-     * Метод для записи в таблицу простых посетителей (НЕ КЛИЕНТОВ)
-     * При помощи {@link UserRepository#findById(Object)} проверяем на наличие.
-     * При помощи {@link UserRepository#save(Object)} сохраняем посетителя в таблицу UsersData.
+     * Метод для записи в таблицу новых клиентов <br>
+     * При помощи {@link sky.pro.Animals.repository.ClientRepository#findByChatId(Long)} проверяем на наличие id чата. <br>
+     * При помощи {@link sky.pro.Animals.repository.ClientRepository#save(Object)} сохраняем клиента в таблицу Client. <br>
      *
      * @param message
+     * @see sky.pro.Animals.repository.ClientRepository#findByChatId(Long)
+     * @see sky.pro.Animals.repository.ClientRepository#save(Object)
      */
     private void registerUsers(Message message) {
-        if (userRepository.findById(message.getChatId()).isEmpty()) {//если чатайди пуст
+        if (clientService.getByChatId(message.getChatId()) == null) {//если чатайди не найден
             Long chatId = message.getChatId();                       //то нужно создать новый
             var chat = message.getChat();
-            User newUser = new User();
-            newUser.setChatId(chatId);
-            newUser.setFirstName(chat.getFirstName());
-            newUser.setLastName(chat.getLastName());
-            newUser.setUserName(chat.getUserName());
-            newUser.setRegisteredAt(new Timestamp(System.currentTimeMillis()));
-            userRepository.save(newUser);
-            LOG.info("user saved : " + newUser);
-
+            Client newClient = new Client();
+            newClient.setChatId(chatId);
+            newClient.setFirstName(chat.getFirstName());
+            newClient.setLastName(chat.getLastName());
+            newClient.setUserName(chat.getUserName());
+            clientService.save(newClient);
+            LOG.info("client saved : " + newClient);
         }
     }
 
