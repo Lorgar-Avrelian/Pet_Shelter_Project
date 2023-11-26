@@ -184,4 +184,40 @@ public class InfoServiceImpl implements InfoService {
         checkInfo();
         return infoRepository.findAll();
     }
+
+    /**
+     * Method for getting of standard messages from DB by Id. <br>
+     * Used repository method {@link JpaRepository#findById(Object)}
+     * <hr>
+     * Метод для получения стандартного сообщения из БД по номеру Id. <br>
+     * Используется метод репозитория {@link JpaRepository#findById(Object)}
+     * <hr>
+     * 1L "Information about the shelter"/"Информация о приюте" <br>
+     * 2L "How to take an animal from a shelter"/"Как взять животное из приюта" <br>
+     * 3L "The shelter's work schedule"/"Расписание работы приюта" <br>
+     * 4L "Address of the shelter"/"Адрес приюта" <br>
+     * 5L "Driving directions"/"Схема проезда" <br>
+     * 6L "Security contact details for registration of a car pass"/"Контактные данные охраны для оформления пропуска на машину" <br>
+     * 7L "General safety recommendations on the territory of the shelter"/"Общие рекомендации о технике безопасности на территории приюта" <br>
+     * 8L "Rules for getting to know an animal before picking it up from a shelter"/"Правила знакомства с животным до того, как забрать его из приюта" <br>
+     * 9L "List of documents required to take an animal from a shelter"/"Список документов, необходимых для того, чтобы взять животное из приюта" <br>
+     * 10L "List of recommendations for animal transportation"/"Список рекомендаций по транспортировке животного" <br>
+     * 11L "List of recommendations for home improvement for a puppy"/"Список рекомендаций по обустройству дома для щенка" <br>
+     * 12L "List of recommendations for home improvement for a kitten"/"Список рекомендаций по обустройству дома для котенка" <br>
+     * 13L "List of recommendations for home improvement for an adult animal with disabilities"/"Список рекомендаций по обустройству дома для взрослого животного с ограниченными возможностями" <br>
+     * 14L "Tips of a dog handler on primary communication with a dog"/"Советы кинолога по первичному общению с собакой" <br>
+     * 15L "Recommendations for proven dog handlers for further handling of the dog"/"Рекомендации по проверенным кинологам для дальнейшего обращения с собакой" <br>
+     * 16L "A list of reasons why they may refuse and not let you take the dog from the shelter"/"Список причин, почему могут отказать и не дать забрать собаку из приюта" <br>
+     * 17L "Daily Report form"/"Форма ежедневного отчета" <br>
+     * 18L "Congratulations on the successful completion of the probation period"/"Поздравление с успешным прохождением испытательного срока" <br>
+     * 19L "An additional time of probation has been appointed"/"Назначено дополнительное время испытательного срока" <br>
+     * 20L "Notification that the adoptive parent has not passed the probation period"/"Уведомление о том, что усыновитель не прошел испытательный срок" <br>
+     *
+     * @return standard message text / текст стандартного сообщения
+     * @see JpaRepository#findById(Object)
+     */
+    @Override
+    public String getInfoTextById(Long id) {
+        return infoRepository.findById(id).get().getText();
+    }
 }

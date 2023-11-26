@@ -10,4 +10,6 @@ public interface InfoService {
     String editInfo(Long id, String editedText);
 
     Collection<Info> getAllInfo();
+
+    String getInfoTextById(Long id);
 }
