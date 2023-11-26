@@ -27,7 +27,7 @@ public class PetServiceImpl implements PetService {
      * Used repository method {@link JpaRepository#findAll()}
      * <hr>
      * Метод для получения коллекции, содержащей всех питомцев. <br>
-     * Используется метод репозитория (@link JpaRepository#findAll())
+     * Используется метод репозитория {@link JpaRepository#findAll()}
      * <hr>
      *
      * @return Collection with all pets / Коллекцию со всеми питомцами
@@ -43,7 +43,7 @@ public class PetServiceImpl implements PetService {
      * Used repository method {@link JpaRepository#findById(Object)}
      * <hr>
      * Метод для получения питомца, имеющего данный id. <br>
-     * Используется метод репозитория (@link JpaRepository#findAll())
+     * Используется метод репозитория {@link JpaRepository#findById(Object)}
      * <hr>
      *
      * @param id of pet / id питомца
@@ -60,7 +60,7 @@ public class PetServiceImpl implements PetService {
      * Used repository method {@link JpaRepository#save(Object)}
      * <hr>
      * Метод для сохранения питомца в БД. <br>
-     * Используется метод репозитория (@link JpaRepository#findAll())
+     * Используется метод репозитория {@link JpaRepository#save(Object)}
      * <hr>
      *
      * @param pet / питомец
@@ -74,15 +74,18 @@ public class PetServiceImpl implements PetService {
 
     /**
      * Method for deleting pet with this id from DB. <br>
-     * Used repository method {@link JpaRepository#delete(Object)}
+     * Used repository method {@link JpaRepository#delete(Object)} <br>
+     * Also used repository method {@link JpaRepository#findById(Object)}
      * <hr>
      * Метод для удаления питомца с данным id из БД. <br>
-     * Используется метод репозитория (@link JpaRepository#findAll())
+     * Используется метод репозитория {@link JpaRepository#delete(Object)} <br>
+     * Также используется метод репозитория {@link JpaRepository#findById(Object)}
      * <hr>
      *
      * @param id of pet / id питомца
      * @return deleted pet / удаленного питомца
      * @see JpaRepository#delete(Object)
+     * @see JpaRepository#findById(Object)
      */
     @Override
     public Pet delete(Long id) {
