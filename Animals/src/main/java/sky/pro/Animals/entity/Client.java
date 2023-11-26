@@ -16,7 +16,6 @@ public class Client {
     private String firstName;
     private String lastName;
     private String userName;
-
     private String address;
     private LocalDate birthday;
     private String passport;
@@ -28,7 +27,7 @@ public class Client {
     }
 
     public Client(Long id, String firstName, String lastName,
-                  String userName,  String address,
+                  String userName, String address,
                   LocalDate birthday, String passport, Long chatId, Collection<Pet> pets) {
         this.id = id;
         this.firstName = firstName;
@@ -73,7 +72,6 @@ public class Client {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-
 
 
     public String getAddress() {
@@ -142,6 +140,6 @@ public class Client {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, userName,  address, birthday, passport, chatId, pets);
+        return Objects.hash(id, firstName, lastName, userName, address, birthday, passport, chatId, pets);
     }
 }

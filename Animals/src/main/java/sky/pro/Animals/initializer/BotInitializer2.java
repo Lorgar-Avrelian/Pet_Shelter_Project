@@ -12,16 +12,23 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.LongPollingBot;
 import org.telegram.telegrambots.meta.generics.TelegramBot;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import sky.pro.Animals.service.InfoServiceImpl;
 
 
 @Component
 public class BotInitializer2 {
+    private final InfoServiceImpl infoService;
     Logger LOG = LoggerFactory.getLogger(BotInitializer2.class);
     @Autowired
     TelegramBot Bot;
 
+    public BotInitializer2(InfoServiceImpl infoService) {
+        this.infoService = infoService;
+    }
+
     @EventListener({ContextRefreshedEvent.class})
     public void init() throws TelegramApiException {
+        infoService.checkInfo();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
             telegramBotsApi.registerBot((LongPollingBot) Bot);

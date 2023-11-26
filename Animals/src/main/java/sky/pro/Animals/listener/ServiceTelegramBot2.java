@@ -2,7 +2,6 @@ package sky.pro.Animals.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -21,6 +20,7 @@ import sky.pro.Animals.configuration.TelegramBotConfig2;
 import sky.pro.Animals.entity.User;
 import sky.pro.Animals.repository.ClientRepository;
 import sky.pro.Animals.repository.UserRepository;
+import sky.pro.Animals.service.InfoServiceImpl;
 
 
 import java.sql.Timestamp;
@@ -29,10 +29,10 @@ import java.util.List;
 
 @Component
 public class ServiceTelegramBot2 extends TelegramLongPollingBot {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ClientRepository clientRepository;
+    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
+    private final InfoServiceImpl infoService;
+    private final TelegramBotConfig2 botConfig;
     Logger LOG = LoggerFactory.getLogger(ServiceTelegramBot2.class);
     static final String HELP_TEXT = "Привет,этот бот поможет выбрать животное из приюта.\n\n" +
             "Вы можете выполнять команды из главного меню слева или набрав команду:\n\n" +
@@ -40,9 +40,11 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             "Команда /mydata увидеть данные, хранящиеся о себе \n\n" +
             "Команда /help чтобы увидеть это сообщение снова\n\n";
 
-    private TelegramBotConfig2 botConfig;
 
-    public ServiceTelegramBot2(TelegramBotConfig2 botConfig) {
+    public ServiceTelegramBot2(UserRepository userRepository, ClientRepository clientRepository, InfoServiceImpl infoService, TelegramBotConfig2 botConfig) {
+        this.userRepository = userRepository;
+        this.clientRepository = clientRepository;
+        this.infoService = infoService;
         this.botConfig = botConfig;
         //меню для бота в кострукторе
         List<BotCommand> listOfCommand = new ArrayList<>();
@@ -74,6 +76,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        infoService.checkInfo();
         if (update.hasMessage() && update.getMessage().hasText()) {//если есть сообщение и в сообщениии есть текст
             String message = update.getMessage().getText();     //сообщение от пользователя
             Long chatId = update.getMessage().getChatId();         //номер чата ,для общения именно с этим пользователем
