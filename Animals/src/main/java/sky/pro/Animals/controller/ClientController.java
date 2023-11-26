@@ -3,9 +3,13 @@ package sky.pro.Animals.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sky.pro.Animals.entity.Client;
+import sky.pro.Animals.entity.Pet;
 import sky.pro.Animals.service.ClientServiceImpl;
 import sky.pro.Animals.service.InfoServiceImpl;
+import sky.pro.Animals.service.PetServiceImpl;
 
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -20,10 +24,12 @@ import java.util.Collection;
 public class ClientController {
     private final ClientServiceImpl clientService;
     private final InfoServiceImpl infoService;
+    private final PetServiceImpl petService;
 
-    public ClientController(ClientServiceImpl clientService, InfoServiceImpl infoService) {
+    public ClientController(ClientServiceImpl clientService, InfoServiceImpl infoService, PetServiceImpl petService) {
         this.clientService = clientService;
         this.infoService = infoService;
+        this.petService = petService;
     }
 
     @GetMapping(path = "/get")
@@ -49,8 +55,32 @@ public class ClientController {
     }
 
     @PostMapping(path = "/write")
-    public ResponseEntity<Client> writeClient(@RequestParam Client client) {
+    public ResponseEntity<Client> writeClient(@RequestParam Long id,
+                                              @RequestParam String firstName,
+                                              @RequestParam String lastName,
+                                              @RequestParam String userName,
+                                              @RequestParam String address,
+                                              @RequestParam Date birthday,
+                                              @RequestParam String passport,
+                                              @RequestParam Long chatId,
+                                              @RequestParam(required = false) Long firstPetId,
+                                              @RequestParam(required = false) Long secondPetId,
+                                              @RequestParam(required = false) Long thirdPetId
+    ) {
         infoService.checkInfo();
+        Collection<Pet> clientPets = new ArrayList<>();
+        if (firstPetId == null || petService.getById(firstPetId) == null) {
+            clientPets = null;
+        } else {
+            clientPets.add(petService.getById(firstPetId));
+        }
+        if (secondPetId != null || petService.getById(secondPetId) != null) {
+            clientPets.add(petService.getById(secondPetId));
+        }
+        if (thirdPetId != null || petService.getById(thirdPetId) != null) {
+            clientPets.add(petService.getById(thirdPetId));
+        }
+        Client client = new Client(id, firstName, lastName, userName, address, birthday, passport, chatId, clientPets);
         Client savedClient = clientService.save(client);
         if (savedClient == null) {
             return ResponseEntity.status(400).build();
@@ -59,8 +89,31 @@ public class ClientController {
         }
     }
 
-    @PutMapping(path = "/edit/{id}")
-    public ResponseEntity<Client> editClient(@PathVariable Long id, @RequestParam Client client) {
+    @PutMapping(path = "/edit")
+    public ResponseEntity<Client> editClient(@RequestParam Long id,
+                                             @RequestParam String firstName,
+                                             @RequestParam String lastName,
+                                             @RequestParam String userName,
+                                             @RequestParam String address,
+                                             @RequestParam Date birthday,
+                                             @RequestParam String passport,
+                                             @RequestParam Long chatId,
+                                             @RequestParam(required = false) Long firstPetId,
+                                             @RequestParam(required = false) Long secondPetId,
+                                             @RequestParam(required = false) Long thirdPetId) {
+        Collection<Pet> clientPets = new ArrayList<>();
+        if (firstPetId == null || petService.getById(firstPetId) == null) {
+            clientPets = null;
+        } else {
+            clientPets.add(petService.getById(firstPetId));
+        }
+        if (secondPetId != null || petService.getById(secondPetId) != null) {
+            clientPets.add(petService.getById(secondPetId));
+        }
+        if (thirdPetId != null || petService.getById(thirdPetId) != null) {
+            clientPets.add(petService.getById(thirdPetId));
+        }
+        Client client = new Client(id, firstName, lastName, userName, address, birthday, passport, chatId, clientPets);
         Client editedClient = clientService.save(client);
         if (editedClient == null) {
             return ResponseEntity.status(400).build();

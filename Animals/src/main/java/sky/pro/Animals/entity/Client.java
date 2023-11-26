@@ -1,11 +1,11 @@
 package sky.pro.Animals.entity;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.Collection;
 import java.util.Objects;
 
-import static javax.persistence.GenerationType.*;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "client")
@@ -17,7 +17,7 @@ public class Client {
     private String lastName;
     private String userName;
     private String address;
-    private LocalDate birthday;
+    private Date birthday;
     private String passport;
     private Long chatId;
     @OneToMany(mappedBy = "client")
@@ -28,7 +28,7 @@ public class Client {
 
     public Client(Long id, String firstName, String lastName,
                   String userName, String address,
-                  LocalDate birthday, String passport, Long chatId, Collection<Pet> pets) {
+                  Date birthday, String passport, Long chatId, Collection<Pet> pets) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -82,11 +82,11 @@ public class Client {
         this.address = address;
     }
 
-    public LocalDate getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(LocalDate birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 

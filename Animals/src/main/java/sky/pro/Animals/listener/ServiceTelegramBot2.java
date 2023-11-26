@@ -54,14 +54,11 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         listOfCommand.add(new BotCommand("/deletedata", "удалить данные о вас"));
         listOfCommand.add(new BotCommand("/help", "информация как пользоваться ботом"));
         listOfCommand.add(new BotCommand("/Приют для кошек", "информация как пользоваться ботом"));
-
         try {
             this.execute(new SetMyCommands(listOfCommand, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
             LOG.error("error setting bot's command list : " + e.getMessage());
         }
-
-
     }
 
     @Override
@@ -77,48 +74,31 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         infoService.checkInfo();
-        if (update.hasMessage() && update.getMessage().hasText()) {//если есть сообщение и в сообщениии есть текст
+        if (update.hasMessage() && update.getMessage().hasText()) {
             String message = update.getMessage().getText();     //сообщение от пользователя
-            Long chatId = update.getMessage().getChatId();         //номер чата ,для общения именно с этим пользователем
+            Long chatId = update.getMessage().getChatId();         //номер чата, для общения именно с этим пользователем
             ReplyKeyboardMarkup replyKeyboardMarkup = null;//кнопки для всех команд
-
-
             switch (message) {     //в командах применяем методы которые сами пишем ниже
                 case "/start":
-
                     startCommand(chatId, update.getMessage().getChat().getFirstName());
                     registerUsers(update.getMessage());
-
-
                     break;
-
                 case "/Приют для кошек":
-
                     String c = "Вас приветствует кошачий приют";
                     sendMessage(replyKeyboardMarkup, chatId, c);
                     break;
-
                 case "/Приют для собак":
                     String d = "Вас приветствует собачий приют";
                     sendMessage(replyKeyboardMarkup, chatId, d);
                     break;
-
                 case "/register":
-
                     buttonsForRegister(chatId);
                     break;
-
                 case "/help":
-
                     sendMessage(replyKeyboardMarkup, chatId, HELP_TEXT);
                     break;
-
-
                 default:
-
                     sendMessage(replyKeyboardMarkup, chatId, ("извините,такой команды пока нет"));
-
-
             }
         }
             /*
@@ -141,9 +121,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     execute(message);
                 } catch (TelegramApiException e) {
                     LOG.error("Error occurred : " + e.getMessage());
-
                 }
-
             } else if (callBackData.equals("NO_BUTTON")) {
                 String text = "you pressed NO Button";
                 EditMessageText message = new EditMessageText();
@@ -154,7 +132,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     execute(message);
                 } catch (TelegramApiException e) {
                     LOG.error("Error occurred : " + e.getMessage());
-
                 }
             } else if (callBackData.equals("Приют для кошек_BUTTON")) {
                 String text = "Вы выбрали кошачий приют!";
@@ -166,7 +143,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     execute(message);
                 } catch (TelegramApiException e) {
                     LOG.error("Error occurred : " + e.getMessage());
-
                 }
             } else if (callBackData.equals("Приют для собак_BUTTON")) {
                 String text = "Вы выбрали собачий приют!";
@@ -178,14 +154,9 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     execute(message);
                 } catch (TelegramApiException e) {
                     LOG.error("Error occurred : " + e.getMessage());
-
                 }
-
-
             }
         }
-
-
     }
 
     /**
@@ -197,35 +168,24 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText("Вы действительно хотите зарегистрироваться? ");
-
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();//класс для создания прозрачной кнопки под сообщением
-
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();//список списков для хранения кнопок
-
         List<InlineKeyboardButton> rowInline = new ArrayList<>();//список с кнопками для ряда
-
         var yesButton = new InlineKeyboardButton();
-
         yesButton.setText("Yes");
         yesButton.setCallbackData("YES_BUTTON");//индификатор кнопки (позволяет понять боту ,какая кнопка была нажата)
-
         var noButton = new InlineKeyboardButton();
         noButton.setText("No");
         noButton.setCallbackData("NO_BUTTON");
-
         rowInline.add(yesButton); //добавили кнопки в список для ряда
         rowInline.add(noButton);
-
         rowsInLine.add(rowInline); //добавили список с кнопками для ряда в список для хранения кнопок
-
         markupInLine.setKeyboard(rowsInLine);// в классе меняем значения для кнопки
         message.setReplyMarkup(markupInLine);
-
         try {
             execute(message);
         } catch (TelegramApiException e) {
             LOG.error("Error occurred : " + e.getMessage());
-
         }
     }
 
@@ -241,7 +201,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             Long chatId = message.getChatId();                       //то нужно создать новый
             var chat = message.getChat();
             User newUser = new User();
-
             newUser.setChatId(chatId);
             newUser.setFirstName(chat.getFirstName());
             newUser.setLastName(chat.getLastName());
@@ -262,15 +221,10 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
      * @param name
      */
     private void startCommand(Long chatId, String name) {
-
-
         String answer = "Привет," + name + ",какой приют вы хотите выбрать?";
         LOG.info("Replied to user " + name);
-
         ReplyKeyboardMarkup rep = buttonsForStart();
-
         sendMessage(rep, chatId, answer);
-
     }
 
     /**
@@ -292,35 +246,24 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText("Какой приют вы хотите выбрать??? ");
-
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();//класс для создания прозрачной кнопки под сообщением
-
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();//список списков для хранения кнопок
-
         List<InlineKeyboardButton> rowInline = new ArrayList<>();//список с кнопками для ряда
-
         var catButton = new InlineKeyboardButton();
-
         catButton.setText("Приют для кошек");
         catButton.setCallbackData("Приют для кошек_BUTTON");//индификатор кнопки (позволяет понять боту ,какая кнопка была нажата)
-
         var dogButton = new InlineKeyboardButton();
         dogButton.setText("Приют для собак");
         dogButton.setCallbackData("Приют для собак_BUTTON");
-
         rowInline.add(catButton); //добавили кнопки в список для ряда
         rowInline.add(dogButton);
-
         rowsInLine.add(rowInline); //добавили список с кнопками для ряда в список для хранения кнопок
-
         markupInLine.setKeyboard(rowsInLine);// в классе меняем значения для кнопки
         message.setReplyMarkup(markupInLine);
-
         try {
             execute(message);
         } catch (TelegramApiException e) {
             LOG.error("Error occurred : " + e.getMessage());
-
         }
     }
 
@@ -340,25 +283,15 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
      */
 
     private ReplyKeyboardMarkup buttonsForStart() {
-
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();//разметка для клавиатуры}
-
         List<KeyboardRow> keyboardRows = new ArrayList<>(); //список из рядов(ряд в который добавляем кнопки
-
         KeyboardRow row = new KeyboardRow();//ряд1
-
 //        var cetButton = new InlineKeyboardButton();
-
         row.add("/Приют для кошек");
-
 //        cetButton.setCallbackData("Приют для кошек_BUTTON");
-
         row.add("/Приют для собак");
-
 //        cetButton.setCallbackData("Приют для собак_BUTTON");
-
         keyboardRows.add(row);      //ряд 1 добавили
-
 //            row = new KeyboardRow();//ряд2
 //
 //            row.add("ppppppp ");
@@ -366,46 +299,33 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
 //            row.add("прислать что nj [jhjitt");
 //
 //            keyboardRows.add(row);          //ряд 2 добавили
-
         replyKeyboardMarkup.setKeyboard(keyboardRows);//добавляем лист с рядами в метод для разметки
-
 //        message.setReplyMarkup(replyKeyboardMarkup);
         return replyKeyboardMarkup;
     }
 
     private void sendMessage(ReplyKeyboardMarkup replyKeyboardMarkup, Long chatId, String textToSend) {
-
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
         message.setReplyMarkup(replyKeyboardMarkup);
-
-
         try {
             execute(message);
         } catch (TelegramApiException e) {
             LOG.error("Error occurred : " + e.getMessage());
-
         }
     }
 
 
     private ReplyKeyboardMarkup buttonsForDefault() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();//разметка для клавиатуры}
-
         List<KeyboardRow> keyboardRows = new ArrayList<>(); //список из рядов(ряд в который добавляем кнопки
-
         KeyboardRow row = new KeyboardRow();//ряд1
-
         row.add("проверка 1");
         row.add("проверка 2");
-
         keyboardRows.add(row);      //ряд 1 добавили
-
         replyKeyboardMarkup.setKeyboard(keyboardRows);//добавляем лист с рядами в метод для разметки
-
 //        message.setReplyMarkup(replyKeyboardMarkup);
         return replyKeyboardMarkup;
     }
-
 }
