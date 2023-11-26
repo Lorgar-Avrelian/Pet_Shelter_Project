@@ -48,7 +48,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         this.botConfig = botConfig;
         //меню для бота в кострукторе
         List<BotCommand> listOfCommand = new ArrayList<>();
-        listOfCommand.add(new BotCommand("/start", "получите приветственное сообщение"));
+        listOfCommand.add(new BotCommand("/start", infoService.getInfoTextById(1L)));
         listOfCommand.add(new BotCommand("/register", "для регистрации"));
         listOfCommand.add(new BotCommand("/mydata", "получить данные о вас "));
         listOfCommand.add(new BotCommand("/deletedata", "удалить данные о вас"));
