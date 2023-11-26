@@ -3,9 +3,11 @@ package sky.pro.Animals.service;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Pet;
+import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.repository.PetRepository;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Service for working with pets data
@@ -92,5 +94,15 @@ public class PetServiceImpl implements PetService {
         Pet pet = petRepository.getById(id);
         petRepository.delete(pet);
         return pet;
+    }
+
+    @Override
+    public String getPetListByVariety(PetVariety petVariety) {
+        List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety);
+        String answer = null;
+        for (Pet pet : sortedPetList) {
+            answer += pet.getId() + " " + pet.getName() + " " + pet.getBirthday() + " <br>";
+        }
+        return answer;
     }
 }
