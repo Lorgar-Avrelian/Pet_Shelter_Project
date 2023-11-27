@@ -1,4 +1,4 @@
-package sky.pro.Animals.configuration.TelegramBot2;
+package sky.pro.Animals.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

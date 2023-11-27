@@ -27,7 +27,7 @@ public class ClientServiceImpl implements ClientService {
      * Used repository method {@link JpaRepository#findAll()}
      * <hr>
      * Метод для получения коллекции, содержащей всех клиентов. <br>
-     * Используется метод репозитория (@link JpaRepository#findAll())
+     * Используется метод репозитория {@link JpaRepository#findAll()}
      * <hr>
      *
      * @return Collection with all clients / Коллекцию со всеми клиентами
@@ -43,7 +43,7 @@ public class ClientServiceImpl implements ClientService {
      * Used repository method {@link JpaRepository#findById(Object)}
      * <hr>
      * Метод для получения клиента, имеющего данный id. <br>
-     * Используется метод репозитория (@link JpaRepository#findAll())
+     * Используется метод репозитория {@link JpaRepository#findById(Object)}
      * <hr>
      *
      * @param id of client / id клиента
@@ -60,7 +60,7 @@ public class ClientServiceImpl implements ClientService {
      * Used repository method {@link JpaRepository#save(Object)}
      * <hr>
      * Метод для сохранения клиента в БД. <br>
-     * Используется метод репозитория (@link JpaRepository#findAll())
+     * Используется метод репозитория {@link JpaRepository#save(Object)}
      * <hr>
      *
      * @param client / клиент
@@ -74,20 +74,28 @@ public class ClientServiceImpl implements ClientService {
 
     /**
      * Method for deleting client with this id from DB. <br>
-     * Used repository method {@link JpaRepository#delete(Object)}
+     * Used repository method {@link JpaRepository#delete(Object)} <br>
+     * Also used repository method {@link JpaRepository#findById(Object)}
      * <hr>
      * Метод для удаления клиента с данным id из БД. <br>
-     * Используется метод репозитория (@link JpaRepository#findAll())
+     * Используется метод репозитория {@link JpaRepository#delete(Object)} <br>
+     * Также используется метод репозитория {@link JpaRepository#findById(Object)}
      * <hr>
      *
      * @param id of client / id клиента
      * @return deleted client / удаленного клиента
      * @see JpaRepository#delete(Object)
+     * @see JpaRepository#findById(Object)
      */
     @Override
     public Client delete(Long id) {
         Client client = clientRepository.getById(id);
         clientRepository.delete(client);
         return client;
+    }
+
+    @Override
+    public Client getByChatId(Long chatId) {
+        return clientRepository.findByChatId(chatId).get();
     }
 }

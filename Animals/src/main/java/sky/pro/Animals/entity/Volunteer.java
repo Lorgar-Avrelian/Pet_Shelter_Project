@@ -1,7 +1,7 @@
 package sky.pro.Animals.entity;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.Objects;
 
 import static javax.persistence.GenerationType.*;
@@ -14,7 +14,7 @@ public class Volunteer {
     private Long id;
     private String fio;
     private String address;
-    private LocalDate birthday;
+    private Date birthday;
     private String passport;
     private Integer chatId;
     private String workPosition;
@@ -22,7 +22,7 @@ public class Volunteer {
     public Volunteer() {
     }
 
-    public Volunteer(Long id, String fio, String address, LocalDate birthday, String passport, Integer chatId, String workPosition) {
+    public Volunteer(Long id, String fio, String address, Date birthday, String passport, Integer chatId, String workPosition) {
         this.id = id;
         this.fio = fio;
         this.address = address;
@@ -56,11 +56,11 @@ public class Volunteer {
         this.address = address;
     }
 
-    public LocalDate getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(LocalDate birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 
