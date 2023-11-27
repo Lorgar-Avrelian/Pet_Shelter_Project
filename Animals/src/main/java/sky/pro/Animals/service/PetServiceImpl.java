@@ -1,13 +1,17 @@
 package sky.pro.Animals.service;
 
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Pet;
 import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.repository.PetRepository;
 
+import java.sql.Date;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Service for working with pets data
@@ -97,6 +101,11 @@ public class PetServiceImpl implements PetService {
         return pet;
     }
 
+    @Override
+    public String getPetListByVariety(PetVariety petVariety) {
+        return null;
+    }
+
     /**
      * Method for forming a string with a list of animals of a certain species <br>
      * <hr>
@@ -107,12 +116,19 @@ public class PetServiceImpl implements PetService {
      * @return string with a list of animals / строку со списком животных
      */
     @Override
-    public String getPetListByVariety(PetVariety petVariety) {
-        List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety);
+    public String getPetListByVariety(PetVariety petVariety, Date age) {
+
+
+
+        List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety).stream()
+                .filter(e -> e.getBirthday() == age)
+                .collect(Collectors.toList());
+
         String answer = null;
         for (Pet pet : sortedPetList) {
-            answer += pet.getId() + " " + pet.getName() + " " + pet.getBirthday() + " <br>";
+            answer += " ID : " + pet.getId() + " , имя : " + pet.getName() + " , дата рождения : " + pet.getBirthday() + " \n\n";
         }
+
         return answer;
     }
 }

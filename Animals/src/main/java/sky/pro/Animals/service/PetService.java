@@ -3,6 +3,7 @@ package sky.pro.Animals.service;
 import sky.pro.Animals.entity.Pet;
 import sky.pro.Animals.model.PetVariety;
 
+import java.sql.Date;
 import java.util.Collection;
 
 public interface PetService {
@@ -15,4 +16,8 @@ public interface PetService {
     Pet delete(Long id);
 
     String getPetListByVariety(PetVariety petVariety);
+
+
+
+    String getPetListByVariety(PetVariety petVariety, Date age);
 }

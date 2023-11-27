@@ -2,6 +2,7 @@ package sky.pro.Animals.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -18,18 +19,28 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import sky.pro.Animals.configuration.TelegramBotConfig2;
 import sky.pro.Animals.entity.Client;
+import sky.pro.Animals.entity.Pet;
+import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.service.ClientServiceImpl;
 import sky.pro.Animals.service.InfoServiceImpl;
+import sky.pro.Animals.service.PetServiceImpl;
 
 
+import javax.persistence.Access;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Component
 public class ServiceTelegramBot2 extends TelegramLongPollingBot {
-    private final ClientServiceImpl clientService;
-    private final InfoServiceImpl infoService;
-    private final TelegramBotConfig2 botConfig;
+    @Autowired
+    private PetServiceImpl petService;
+    @Autowired
+    private  ClientServiceImpl clientService;
+    @Autowired
+    private  InfoServiceImpl infoService;
+    @Autowired
+    private  TelegramBotConfig2 botConfig;
     Logger LOG = LoggerFactory.getLogger(ServiceTelegramBot2.class);
     static final String HELP_TEXT = "Привет,этот бот поможет выбрать животное из приюта.\n\n" +
             "Вы можете выполнять команды из главного меню слева или набрав команду:\n\n" +
@@ -109,10 +120,17 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
 
             if (callBackData.equals("ageCat1")) {
-                String text = "you pressed ageCat1";
+
+                PetVariety petVariety = PetVariety.valueOf("cat");
+
+                String p1 = petService.getPetListByVariety(petVariety);
+
+
+
+
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
-                message.setText(text);
+                message.setText(p1);
                 message.setMessageId((int)messageID);//отправляем message с определенным ID
                 try {
                     execute(message);
