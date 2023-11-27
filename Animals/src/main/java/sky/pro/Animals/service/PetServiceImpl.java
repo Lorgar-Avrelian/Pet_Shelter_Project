@@ -8,10 +8,10 @@ import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.repository.PetRepository;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.*;
 
 /**
  * Service for working with pets data
@@ -116,19 +116,19 @@ public class PetServiceImpl implements PetService {
      * @return string with a list of animals / строку со списком животных
      */
     @Override
-    public String getPetListByVariety(PetVariety petVariety, Date age) {
+    public String getPetListByVariety(PetVariety petVariety, int age) {
 
-
-
+        LocalDate date = LocalDate.now();
         List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety).stream()
-                .filter(e -> e.getBirthday() == age)
+                .filter(e -> e.getBirthday().toLocalDate().getYear() == (date.getYear() - age))
                 .collect(Collectors.toList());
 
-        String answer = null;
+        String answer = "По заданным критериям получен следующий результат: " + " \n\n";
         for (Pet pet : sortedPetList) {
             answer += " ID : " + pet.getId() + " , имя : " + pet.getName() + " , дата рождения : " + pet.getBirthday() + " \n\n";
         }
 
         return answer;
+//        return sortedPetList.toString();
     }
 }

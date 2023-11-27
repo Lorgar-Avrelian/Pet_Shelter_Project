@@ -26,7 +26,6 @@ import sky.pro.Animals.service.InfoServiceImpl;
 import sky.pro.Animals.service.PetServiceImpl;
 
 
-import javax.persistence.Access;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -123,9 +122,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
 
                 PetVariety petVariety = PetVariety.valueOf("cat");
 
-                String p1 = petService.getPetListByVariety(petVariety);
-
-
+                String p1 = petService.getPetListByVariety(petVariety, 2);
 
 
                 EditMessageText message = new EditMessageText();
