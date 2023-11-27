@@ -93,4 +93,9 @@ public class ClientServiceImpl implements ClientService {
         clientRepository.delete(client);
         return client;
     }
+
+    @Override
+    public Client getByChatId(Long chatId) {
+        return clientRepository.findByChatId(chatId).get();
+    }
 }

@@ -12,4 +12,6 @@ public interface ClientService {
     Client save(Client client);
 
     Client delete(Long id);
+
+    Client getByChatId(Long chatId);
 }

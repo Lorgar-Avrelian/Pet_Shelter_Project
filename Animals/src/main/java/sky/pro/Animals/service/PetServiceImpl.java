@@ -96,6 +96,15 @@ public class PetServiceImpl implements PetService {
         return pet;
     }
 
+    /**
+     * Method for forming a string with a list of animals of a certain species <br>
+     * <hr>
+     * Метод для формирования строки со списком животных определенного вида <br>
+     * <hr>
+     *
+     * @param petVariety
+     * @return string with a list of animals / строку со списком животных
+     */
     @Override
     public String getPetListByVariety(PetVariety petVariety) {
         List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety);
