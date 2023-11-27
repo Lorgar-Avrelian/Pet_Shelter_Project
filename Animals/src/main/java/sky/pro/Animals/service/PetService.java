@@ -19,5 +19,5 @@ public interface PetService {
 
 
 
-    String getPetListByVariety(PetVariety petVariety, Date age);
+    String getPetListByVariety(PetVariety petVariety, int age);
 }

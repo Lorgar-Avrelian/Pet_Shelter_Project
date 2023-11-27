@@ -1,4 +1,4 @@
--- liquibase formatted sql
+---- liquibase formatted sql
 
 ---- changeset tokovenko:1
 --CREATE TABLE client (
@@ -11,7 +11,7 @@
 --beginningDay DATE,
 --pets INTEGER
 --);
---
+
 ---- changeset tokovenko:2
 --CREATE TABLE pet (
 --id BIGINT PRIMARY KEY,
@@ -21,7 +21,7 @@
 --pet_variety VARCHAR,
 --client_id BIGINT UNIQUE REFERENCES client(id)
 --);
---
+
 ---- changeset tokovenko:3
 --CREATE TABLE employee (
 --id BIGINT PRIMARY KEY,
