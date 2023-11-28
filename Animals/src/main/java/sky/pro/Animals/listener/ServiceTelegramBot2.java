@@ -122,8 +122,9 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
 
                 PetVariety petVariety = PetVariety.valueOf("cat");
 
-                String p1 = petService.getPetListByVariety(petVariety, 2);
+                String p1 = petService.getPetListByVariety(petVariety);
 
+                buttonForAgeCat(chatId);
 
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
@@ -138,11 +139,16 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
 
             }
             else if (callBackData.equals("ageCat2")) {
-                String text = "you pressed ageCat2";
+                PetVariety petVariety = PetVariety.valueOf("cat");
+
+                String p1 = petService.getPetListByVariety(petVariety);
+
+                buttonForAgeCat(chatId);
+
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
-                message.setText(text);
-                message.setMessageId((int) messageID);//отправляем message с определенным ID
+                message.setText(p1);
+                message.setMessageId((int)messageID);//отправляем message с определенным ID
                 try {
                     execute(message);
                 } catch (TelegramApiException e) {
@@ -151,10 +157,15 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                 }
             }
             else if (callBackData.equals("ageCat3")) {
-                String text = "you pressed ageCat3";
+                PetVariety petVariety = PetVariety.valueOf("cat");
+
+                String p1 = petService.getPetListByVariety(petVariety);
+
+                buttonForAgeCat(chatId);
+
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
-                message.setText(text);
+                message.setText(p1);
                 message.setMessageId((int)messageID);//отправляем message с определенным ID
                 try {
                     execute(message);
@@ -164,10 +175,15 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                 }
             }
             else if (callBackData.equals("ageCat4")) {
-                String text = "you pressed ageCat4";
+                PetVariety petVariety = PetVariety.valueOf("cat");
+
+//                String p1 = petService.getPetListByVariety(petVariety);
+
+                buttonForAgeCat(chatId);
+
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
-                message.setText(text);
+//                message.setText(p1);
                 message.setMessageId((int)messageID);//отправляем message с определенным ID
                 try {
                     execute(message);
@@ -221,11 +237,11 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         ageButton1.setCallbackData("ageCat1");
 
         var ageButton2 = new InlineKeyboardButton();
-        ageButton2.setText("от 6 месяцев до 1 года ");
+        ageButton2.setText(" до 1 года ");
         ageButton2.setCallbackData("ageCat2");
 
         var ageButton3 = new InlineKeyboardButton();
-        ageButton3.setText("от 1 года до 2 лет ");
+        ageButton3.setText("до 2 лет ");
         ageButton3.setCallbackData("ageCat3");
 
         var ageButton4 = new InlineKeyboardButton();

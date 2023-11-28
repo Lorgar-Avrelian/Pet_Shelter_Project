@@ -7,8 +7,8 @@ import sky.pro.Animals.entity.Pet;
 import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.repository.PetRepository;
 
-import java.sql.Date;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -101,10 +101,8 @@ public class PetServiceImpl implements PetService {
         return pet;
     }
 
-    @Override
-    public String getPetListByVariety(PetVariety petVariety) {
-        return null;
-    }
+
+
 
     /**
      * Method for forming a string with a list of animals of a certain species <br>
@@ -116,19 +114,25 @@ public class PetServiceImpl implements PetService {
      * @return string with a list of animals / строку со списком животных
      */
     @Override
-    public String getPetListByVariety(PetVariety petVariety, int age) {
+    public String getPetListByVariety(PetVariety petVariety) {
 
-        LocalDate date = LocalDate.now();
-        List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety).stream()
-                .filter(e -> e.getBirthday().toLocalDate().getYear() == (date.getYear() - age))
-                .collect(Collectors.toList());
+
+
+        List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety);
+
 
         String answer = "По заданным критериям получен следующий результат: " + " \n\n";
+
+
         for (Pet pet : sortedPetList) {
+
+
+
             answer += " ID : " + pet.getId() + " , имя : " + pet.getName() + " , дата рождения : " + pet.getBirthday() + " \n\n";
         }
 
+
         return answer;
-//        return sortedPetList.toString();
+
     }
 }
