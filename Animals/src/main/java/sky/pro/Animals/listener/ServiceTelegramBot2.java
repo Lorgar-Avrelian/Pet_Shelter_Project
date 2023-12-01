@@ -133,58 +133,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             String callBackData = update.getCallbackQuery().getData();//получаем запрос,Id нажатой кнопки
             long messageID = update.getCallbackQuery().getMessage().getMessageId();//получаем инфу по message  через update.getCallbackQuery()потомучто в updata сообщения нет
             long chatId = update.getCallbackQuery().getMessage().getChatId();
-
-            if (callBackData.equals("listCat")) {
-                PetVariety petVariety = PetVariety.valueOf("cat");
-                String p1 = petService.getPetListByVariety(petVariety);
-                buttonForListCat(chatId);
-
-                EditMessageText message = new EditMessageText();
-                message.setChatId(String.valueOf(chatId));
-                message.setText(p1);
-                message.setMessageId((int) messageID);//отправляем message с определенным ID
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    LOG.error("Error occurred : " + e.getMessage());
-                }
-            } else if (callBackData.equals("listDog")) {
-                PetVariety petVariety = PetVariety.valueOf("dog");
-                String p1 = petService.getPetListByVariety(petVariety);
-                buttonForListCat(chatId);
-
-                EditMessageText message = new EditMessageText();
-                message.setChatId(String.valueOf(chatId));
-                message.setText(p1);
-                message.setMessageId((int) messageID);//отправляем message с определенным ID
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    LOG.error("Error occurred : " + e.getMessage());
-                }
-            } else if (callBackData.equals("Приют для кошек_BUTTON")) {
-                String text = "Вы выбрали приют для кошек!";
-                EditMessageText message = new EditMessageText();
-                message.setChatId(String.valueOf(chatId));
-                message.setText(text);
-                message.setMessageId((int) messageID);//отправляем message с определенным ID
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    LOG.error("Error occurred : " + e.getMessage());
-                }
-            } else if (callBackData.equals("Приют для собак_BUTTON")) {
-                String text = "Вы выбрали приют для собак!";
-                EditMessageText message = new EditMessageText();
-                message.setChatId(String.valueOf(chatId));
-                message.setText(text);
-                message.setMessageId((int) messageID);//отправляем message с определенным ID
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    LOG.error("Error occurred : " + e.getMessage());
-                }
-            } else if (update.hasCallbackQuery()) {
+             if (update.hasCallbackQuery()) {
                 String[] call_data = update.getCallbackQuery().getData().split(",");
                 String tag = call_data[0];
                 String id = call_data[1];
@@ -210,48 +159,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     throw new RuntimeException(e);
                 }
             }
-        }
-    }
-
-    private void buttonForListCat(Long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText("Выберите питомца и введите ID питомца для просмотра более детальной информации");
-        InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-        var ageButton1 = new InlineKeyboardButton();
-        ageButton1.setText("Выбрать =>");
-        ageButton1.setCallbackData("listCat");
-        rowInline1.add(ageButton1);
-        rowsInLine.add(rowInline1);
-        markupInLine.setKeyboard(rowsInLine);
-        message.setReplyMarkup(markupInLine);
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            LOG.error("Error occurred : " + e.getMessage());
-        }
-    }
-
-    private void buttonForListDog(Long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText("Выберите питомца и введите ID питомца для просмотра более детальной информации");
-        InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-        var ageButton2 = new InlineKeyboardButton();
-        ageButton2.setText("Выбрать =>");
-        ageButton2.setCallbackData("listDog");
-        rowInline1.add(ageButton2);
-        rowsInLine.add(rowInline1);
-        markupInLine.setKeyboard(rowsInLine);
-        message.setReplyMarkup(markupInLine);
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            LOG.error("Error occurred : " + e.getMessage());
         }
     }
 
@@ -324,46 +231,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
     }
 
     /**
-     * Метод создаёт прозрачные кнопки под сообщением.
-     * Используется класс {@code InlineKeyboardButton()}для создания объекта прозрачной кнопки.
-     * При помощи метода {@code setCallbackData()  } назначаем ID для кнопки, что бы в дальнейшем боту было
-     * понятно какую кнопку выбрал пользователь.
-     * В коллекцию {@code rowInline } добавляем кнопки для ряда.
-     * В коллекцию {@code rowsInLine} добавляем коллекцию с кнопками для ряда {@code rowInline }
-     * Не путайте {@code rowsInLine} и {@code rowInline }.
-     * Далее {@code markupInLine.setKeyboard(rowsInLine)} : в объекте класса {@code InlineKeyboardMarkup}
-     * инициализируем поле keyboard коллекцией {@code rowsInLine} : {@code markupInLine.setKeyboard(rowsInLine)}.
-     * {@code message.setReplyMarkup(markupInLine)}: инициализируем поле replyMarkup класса SendMessage,добавляем
-     * созданную ренее клавиатур markupInLine.
-     *
-     * @param chatId
-     */
-    private void buttonForShelters(Long chatId) { //создаем прозрачные кнопки с сообщением (не клавиатура)
-        SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText("Какой приют вы хотите выбрать??? ");
-        InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();//класс для создания прозрачной кнопки под сообщением
-        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();//список списков для хранения кнопок
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();//список с кнопками для ряда
-        var catButton = new InlineKeyboardButton();
-        catButton.setText("Приют для кошек");
-        catButton.setCallbackData("Приют для кошек_BUTTON");//индификатор кнопки (позволяет понять боту ,какая кнопка была нажата)
-        var dogButton = new InlineKeyboardButton();
-        dogButton.setText("Приют для собак");
-        dogButton.setCallbackData("Приют для собак_BUTTON");
-        rowInline.add(catButton); //добавили кнопки в список для ряда
-        rowInline.add(dogButton);
-        rowsInLine.add(rowInline); //добавили список с кнопками для ряда в список для хранения кнопок
-        markupInLine.setKeyboard(rowsInLine);// в классе меняем значения для кнопки
-        message.setReplyMarkup(markupInLine);
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            LOG.error("Error occurred : " + e.getMessage());
-        }
-    }
-
-    /**
      * В методе описаны не прозрачные кнопки(клавиатура) для команды старт.
      * Создаём объект: {@code ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup() } для
      * разметки клавиатуры.
@@ -382,21 +249,10 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();//разметка для клавиатуры}
         List<KeyboardRow> keyboardRows = new ArrayList<>(); //список из рядов(ряд в который добавляем кнопки
         KeyboardRow row = new KeyboardRow();//ряд1
-//        var cetButton = new InlineKeyboardButton();
         row.add("/Приют для кошек");
-//        cetButton.setCallbackData("Приют для кошек_BUTTON");
         row.add("/Приют для собак");
-//        cetButton.setCallbackData("Приют для собак_BUTTON");
         keyboardRows.add(row);      //ряд 1 добавили
-//            row = new KeyboardRow();//ряд2
-//
-//            row.add("ppppppp ");
-//            row.add("прислать что нибудь [jhjitt");
-//            row.add("прислать что nj [jhjitt");
-//
-//            keyboardRows.add(row);          //ряд 2 добавили
         replyKeyboardMarkup.setKeyboard(keyboardRows);//добавляем лист с рядами в метод для разметки
-//        message.setReplyMarkup(replyKeyboardMarkup);
         return replyKeyboardMarkup;
     }
 
@@ -421,7 +277,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         row.add("проверка 2");
         keyboardRows.add(row);      //ряд 1 добавили
         replyKeyboardMarkup.setKeyboard(keyboardRows);//добавляем лист с рядами в метод для разметки
-//        message.setReplyMarkup(replyKeyboardMarkup);
         return replyKeyboardMarkup;
     }
 
