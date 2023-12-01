@@ -296,11 +296,9 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             rowInline1.add(inlineKeyboardButton1);
             rowsInline.add(rowInline1);
         }
-
         markupInline.setKeyboard(rowsInline);
         message.setReplyMarkup(markupInline);
         return message;
-
     }
 
     public SendMessage getDog(long chat_id) {
@@ -320,17 +318,15 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             rowInline1.add(inlineKeyboardButton1);
             rowsInline.add(rowInline1);
         }
-
         markupInline.setKeyboard(rowsInline);
         message.setReplyMarkup(markupInline);
         return message;
-
     }
 
     public SendMessage getPhoto(long chat_id, Long id) {
         SendMessage message = new SendMessage();
         message.setChatId(chat_id);
-        message.setText("Вы можете просмотреть фото питомца " + petService.getById(id).getName());
+        message.setText("Вы можете просмотреть подробную информацию и фото питомца " + petService.getById(id).getName());
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
@@ -351,6 +347,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         return SendPhoto.builder()
                 .chatId(chat_id)
                 .photo(file)
+                .caption(petService.getById(id).toString() + "\n" + "Если Вас заинтересовал питомец, запомните его ID и сообщите волонтеру")
                 .build();
     }
 }
