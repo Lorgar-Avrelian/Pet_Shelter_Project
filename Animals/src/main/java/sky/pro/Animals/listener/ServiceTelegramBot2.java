@@ -189,17 +189,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             } else if (update.hasCallbackQuery()) {
                 String call_data = update.getCallbackQuery().getData();
                 long chat_id = update.getCallbackQuery().getMessage().getChatId();
-                String path = avatarService.findAvatar(Long.parseLong(call_data, 10)).getFilePath();
-                String pet = petService.getById(Long.parseLong(call_data, 10)).toString();
-                EditMessageText message = new EditMessageText();
-                message.setChatId(String.valueOf(chat_id));
-                message.setText(pet);
-                message.setMessageId((int) messageID);//отправляем message с определенным ID
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    LOG.error("Error occurred : " + e.getMessage());
-                }
                 try {
                     execute(getPhoto(chat_id, Long.parseLong(call_data, 10)));
                 } catch (TelegramApiException e) {
@@ -479,7 +468,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
     public SendMessage getPhoto(long chat_id, Long id) {
         SendMessage message = new SendMessage();
         message.setChatId(chat_id);
-        message.setText("Вы можете просмотреть фото питомца");
+        message.setText("Вы можете просмотреть фото питомца " + petService.getById(id).getName());
 
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
