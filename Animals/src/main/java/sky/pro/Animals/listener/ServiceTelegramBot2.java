@@ -278,7 +278,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
-    //========================================================================
     public SendMessage getCat(long chat_id) {
 
         SendMessage message = new SendMessage();
