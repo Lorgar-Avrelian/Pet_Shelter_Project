@@ -101,9 +101,6 @@ public class PetServiceImpl implements PetService {
         return pet;
     }
 
-
-
-
     /**
      * Method for forming a string with a list of animals of a certain species <br>
      * <hr>
@@ -115,24 +112,19 @@ public class PetServiceImpl implements PetService {
      */
     @Override
     public String getPetListByVariety(PetVariety petVariety) {
-
-
-
         List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety);
-
-
         String answer = "По заданным критериям получен следующий результат: " + " \n\n";
-
-
         for (Pet pet : sortedPetList) {
-
-
-
             answer += " ID : " + pet.getId() + " , имя : " + pet.getName() + " , дата рождения : " + pet.getBirthday() + " \n\n";
         }
-
-
         return answer;
 
+    }
+
+    public List<Pet> getCat() {
+        return  petRepository.findAllByPetVariety(PetVariety.cat);
+    }
+    public List<Pet> getDog() {
+        return  petRepository.findAllByPetVariety(PetVariety.dog);
     }
 }

@@ -95,13 +95,8 @@ public class Pet {
 
     @Override
     public String toString() {
-        return "Pet{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", birthday=" + birthday +
-                ", alive=" + alive +
-                ", petVariety='" + petVariety + '\'' +
-                ", client=" + client +
-                '}';
+        return  name + '\n' +
+                ", Дата рождения = " + birthday
+                + ", id = " + id + '\n';
     }
 }

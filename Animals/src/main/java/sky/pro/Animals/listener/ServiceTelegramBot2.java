@@ -1,5 +1,6 @@
 package sky.pro.Animals.listener;
 
+import org.apache.tomcat.util.net.SendfileDataBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +8,11 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
@@ -20,14 +24,15 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import sky.pro.Animals.configuration.TelegramBotConfig2;
 import sky.pro.Animals.entity.Client;
 import sky.pro.Animals.entity.Pet;
+import sky.pro.Animals.entity.PetAvatar;
 import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.service.ClientServiceImpl;
 import sky.pro.Animals.service.InfoServiceImpl;
+import sky.pro.Animals.service.PetAvatarServiceImpl;
 import sky.pro.Animals.service.PetServiceImpl;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -35,11 +40,15 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
     @Autowired
     private PetServiceImpl petService;
     @Autowired
-    private  ClientServiceImpl clientService;
+    private ClientServiceImpl clientService;
     @Autowired
-    private  InfoServiceImpl infoService;
+    private InfoServiceImpl infoService;
     @Autowired
-    private  TelegramBotConfig2 botConfig;
+    private TelegramBotConfig2 botConfig;
+    @Autowired
+    private PetAvatarServiceImpl avatarService;
+
+
     Logger LOG = LoggerFactory.getLogger(ServiceTelegramBot2.class);
     static final String HELP_TEXT = "Привет,этот бот поможет выбрать животное из приюта.\n\n" +
             "Вы можете выполнять команды из главного меню слева или набрав команду:\n\n" +
@@ -48,7 +57,8 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             "Команда /help чтобы увидеть это сообщение снова\n\n";
 
 
-    public ServiceTelegramBot2(ClientServiceImpl clientService, InfoServiceImpl infoService, TelegramBotConfig2 botConfig) {
+    public ServiceTelegramBot2(PetServiceImpl petService, ClientServiceImpl clientService, InfoServiceImpl infoService, TelegramBotConfig2 botConfig) {
+        this.petService = petService;
         this.clientService = clientService;
         this.infoService = infoService;
         this.botConfig = botConfig;
@@ -90,13 +100,22 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     registerUsers(update.getMessage());
                     break;
                 case "/Приют для кошек":
-                    String c = "Вас приветствует кошачий приют";
+                    String c = "Вас приветствует приют для кошек";
                     sendMessage(replyKeyboardMarkup, chatId, c);
-                    buttonForAgeCat(chatId);
+                    try {
+                        execute(getCat(chatId));
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "/Приют для собак":
-                    String d = "Вас приветствует собачий приют";
+                    String d = "Вас приветствует приют для собак";
                     sendMessage(replyKeyboardMarkup, chatId, d);
+                    try {
+                        execute(getDog(chatId));
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "/register":
                     buttonsForRegister(chatId);
@@ -108,92 +127,45 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     sendMessage(replyKeyboardMarkup, chatId, ("извините,такой команды пока нет"));
             }
         }
-            /*
-            этот else if отлавливает id прозрачных кнопок (Не большие кирпичи с командами)
-            например "YES_BUTTON" это id для кнопки yes.В зависимости от id кнопки возвращает функционал этой кнопки
-             */
+        /**
+         Этот else if отлавливает id прозрачных кнопок (Небольшие кирпичи с командами)
+         например "YES_BUTTON" это id для кнопки yes. В зависимости от id кнопки возвращает функционал этой кнопки
+         */
         else if (update.hasCallbackQuery()) {  //может в update передался id кнопки(yesButton.setCallbackData("YES_BUTTON"))
             String callBackData = update.getCallbackQuery().getData();//получаем запрос,Id нажатой кнопки
-
             long messageID = update.getCallbackQuery().getMessage().getMessageId();//получаем инфу по message  через update.getCallbackQuery()потомучто в updata сообщения нет
             long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-            if (callBackData.equals("ageCat1")) {
-
+            if (callBackData.equals("listCat")) {
                 PetVariety petVariety = PetVariety.valueOf("cat");
-
                 String p1 = petService.getPetListByVariety(petVariety);
-
-                buttonForAgeCat(chatId);
+                buttonForListCat(chatId);
 
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
                 message.setText(p1);
-                message.setMessageId((int)messageID);//отправляем message с определенным ID
+                message.setMessageId((int) messageID);//отправляем message с определенным ID
                 try {
                     execute(message);
                 } catch (TelegramApiException e) {
                     LOG.error("Error occurred : " + e.getMessage());
-
                 }
-
-            }
-            else if (callBackData.equals("ageCat2")) {
-                PetVariety petVariety = PetVariety.valueOf("cat");
-
+            } else if (callBackData.equals("listDog")) {
+                PetVariety petVariety = PetVariety.valueOf("dog");
                 String p1 = petService.getPetListByVariety(petVariety);
-
-                buttonForAgeCat(chatId);
+                buttonForListCat(chatId);
 
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
                 message.setText(p1);
-                message.setMessageId((int)messageID);//отправляем message с определенным ID
+                message.setMessageId((int) messageID);//отправляем message с определенным ID
                 try {
                     execute(message);
                 } catch (TelegramApiException e) {
                     LOG.error("Error occurred : " + e.getMessage());
-
                 }
-            }
-            else if (callBackData.equals("ageCat3")) {
-                PetVariety petVariety = PetVariety.valueOf("cat");
-
-                String p1 = petService.getPetListByVariety(petVariety);
-
-                buttonForAgeCat(chatId);
-
-                EditMessageText message = new EditMessageText();
-                message.setChatId(String.valueOf(chatId));
-                message.setText(p1);
-                message.setMessageId((int)messageID);//отправляем message с определенным ID
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    LOG.error("Error occurred : " + e.getMessage());
-
-                }
-            }
-            else if (callBackData.equals("ageCat4")) {
-                PetVariety petVariety = PetVariety.valueOf("cat");
-
-//                String p1 = petService.getPetListByVariety(petVariety);
-
-                buttonForAgeCat(chatId);
-
-                EditMessageText message = new EditMessageText();
-                message.setChatId(String.valueOf(chatId));
-//                message.setText(p1);
-                message.setMessageId((int)messageID);//отправляем message с определенным ID
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    LOG.error("Error occurred : " + e.getMessage());
-
-                }
-
             } else if (callBackData.equals("Приют для кошек_BUTTON")) {
-                String text = "Вы выбрали кошачий приют!";
+                String text = "Вы выбрали приют для кошек!";
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
                 message.setText(text);
@@ -204,7 +176,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     LOG.error("Error occurred : " + e.getMessage());
                 }
             } else if (callBackData.equals("Приют для собак_BUTTON")) {
-                String text = "Вы выбрали собачий приют!";
+                String text = "Вы выбрали приют для собак!";
                 EditMessageText message = new EditMessageText();
                 message.setChatId(String.valueOf(chatId));
                 message.setText(text);
@@ -214,58 +186,70 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                 } catch (TelegramApiException e) {
                     LOG.error("Error occurred : " + e.getMessage());
                 }
+            } else if (update.hasCallbackQuery()) {
+                String call_data = update.getCallbackQuery().getData();
+                long chat_id = update.getCallbackQuery().getMessage().getChatId();
+                String path = avatarService.findAvatar(Long.parseLong(call_data, 10)).getFilePath();
+                String pet = petService.getById(Long.parseLong(call_data, 10)).toString();
+                EditMessageText message = new EditMessageText();
+                message.setChatId(String.valueOf(chat_id));
+                message.setText(pet);
+                message.setMessageId((int) messageID);//отправляем message с определенным ID
+                try {
+                    execute(message);
+                } catch (TelegramApiException e) {
+                    LOG.error("Error occurred : " + e.getMessage());
+                }
+                try {
+                    execute(getPhoto(chat_id, Long.parseLong(call_data, 10)));
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+
+
             }
         }
     }
 
-    private void buttonForAgeCat(Long chatId) {
+    private void buttonForListCat(Long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
-        message.setText("Выберите предпочтительный возраст ");
-
+        message.setText("Выберите питомца и введите ID питомца для просмотра более детальной информации");
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
-
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-
-
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
-
-
         var ageButton1 = new InlineKeyboardButton();
-        ageButton1.setText("от 1 до 6 месяцев ");
-        ageButton1.setCallbackData("ageCat1");
-
-        var ageButton2 = new InlineKeyboardButton();
-        ageButton2.setText(" до 1 года ");
-        ageButton2.setCallbackData("ageCat2");
-
-        var ageButton3 = new InlineKeyboardButton();
-        ageButton3.setText("до 2 лет ");
-        ageButton3.setCallbackData("ageCat3");
-
-        var ageButton4 = new InlineKeyboardButton();
-        ageButton4.setText("от 2 лет и выше ");
-        ageButton4.setCallbackData("ageCat4");
-
+        ageButton1.setText("Выбрать =>");
+        ageButton1.setCallbackData("listCat");
         rowInline1.add(ageButton1);
-        rowInline1.add(ageButton2);
-        rowInline2.add(ageButton3);
-        rowInline2.add(ageButton4);
-
         rowsInLine.add(rowInline1);
-        rowsInLine.add(rowInline2);
-
         markupInLine.setKeyboard(rowsInLine);
-
         message.setReplyMarkup(markupInLine);
-
-
         try {
             execute(message);
         } catch (TelegramApiException e) {
             LOG.error("Error occurred : " + e.getMessage());
+        }
+    }
 
+    private void buttonForListDog(Long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText("Выберите питомца и введите ID питомца для просмотра более детальной информации");
+        InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        var ageButton2 = new InlineKeyboardButton();
+        ageButton2.setText("Выбрать =>");
+        ageButton2.setCallbackData("listDog");
+        rowInline1.add(ageButton2);
+        rowsInLine.add(rowInline1);
+        markupInLine.setKeyboard(rowsInLine);
+        message.setReplyMarkup(markupInLine);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            LOG.error("Error occurred : " + e.getMessage());
         }
     }
 
@@ -331,7 +315,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
      * @param name
      */
     private void startCommand(Long chatId, String name) {
-        String answer = "Привет," + name + ",какой приют вы хотите выбрать?";
+        String answer = "Привет, " + name + ", какой приют вы хотите выбрать?";
         LOG.info("Replied to user " + name);
         ReplyKeyboardMarkup rep = buttonsForStart();
         sendMessage(rep, chatId, answer);
@@ -437,5 +421,79 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         replyKeyboardMarkup.setKeyboard(keyboardRows);//добавляем лист с рядами в метод для разметки
 //        message.setReplyMarkup(replyKeyboardMarkup);
         return replyKeyboardMarkup;
+    }
+
+    //========================================================================
+    public SendMessage getCat(long chat_id) {
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chat_id);
+        message.setText("Выберите питомца");
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        for (Pet e : petService.getCat()
+        ) {
+            List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+            InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+            inlineKeyboardButton1.setText(e.toString());
+            inlineKeyboardButton1.setCallbackData(e.getId().toString());
+            rowInline1.add(inlineKeyboardButton1);
+            rowsInline.add(rowInline1);
+        }
+
+        markupInline.setKeyboard(rowsInline);
+        message.setReplyMarkup(markupInline);
+
+        return message;
+
+    }
+
+    public SendMessage getDog(long chat_id) {
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chat_id);
+        message.setText("Выберите питомца");
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        for (Pet e : petService.getDog()
+        ) {
+            List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+            InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+            inlineKeyboardButton1.setText(e.toString());
+            inlineKeyboardButton1.setCallbackData(e.getId().toString());
+            rowInline1.add(inlineKeyboardButton1);
+            rowsInline.add(rowInline1);
+        }
+
+        markupInline.setKeyboard(rowsInline);
+        message.setReplyMarkup(markupInline);
+
+        return message;
+
+    }
+
+    public SendMessage getPhoto(long chat_id, Long id) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chat_id);
+        message.setText("Вы можете просмотреть фото питомца");
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+        inlineKeyboardButton1.setText("Посмотреть фото");
+        inlineKeyboardButton1.setCallbackData(id.toString());
+        rowInline1.add(inlineKeyboardButton1);
+        rowsInline.add(rowInline1);
+
+
+        markupInline.setKeyboard(rowsInline);
+        message.setReplyMarkup(markupInline);
+
+        return message;
     }
 }
