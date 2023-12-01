@@ -1,6 +1,5 @@
 package sky.pro.Animals.listener;
 
-import org.apache.tomcat.util.net.SendfileDataBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
@@ -24,7 +22,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import sky.pro.Animals.configuration.TelegramBotConfig2;
 import sky.pro.Animals.entity.Client;
 import sky.pro.Animals.entity.Pet;
-import sky.pro.Animals.entity.PetAvatar;
 import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.service.ClientServiceImpl;
 import sky.pro.Animals.service.InfoServiceImpl;
@@ -32,6 +29,7 @@ import sky.pro.Animals.service.PetAvatarServiceImpl;
 import sky.pro.Animals.service.PetServiceImpl;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -187,15 +185,30 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     LOG.error("Error occurred : " + e.getMessage());
                 }
             } else if (update.hasCallbackQuery()) {
-                String call_data = update.getCallbackQuery().getData();
+                String[] call_data = update.getCallbackQuery().getData().split(",");
+                String tag = call_data[0];
+                String id = call_data[1];
                 long chat_id = update.getCallbackQuery().getMessage().getChatId();
-                try {
-                    execute(getPhoto(chat_id, Long.parseLong(call_data, 10)));
+                try{
+                switch (tag) {
+                    case "dog" : {
+                        execute(getPhoto(chat_id, Long.parseLong(id)));
+                        break;
+                    }
+                    case "cat" : {
+                        execute(getPhoto(chat_id, Long.parseLong(id)));
+                        break;
+                    }
+                    case "photo" : {
+                        execute(sendPhoto(chat_id, Long.parseLong(id)));
+                        break;
+                    }
+                    default: break;
+                }
+
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
-
-
             }
         }
     }
@@ -418,7 +431,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(chat_id);
         message.setText("Выберите питомца");
-
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
@@ -427,14 +439,13 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
             inlineKeyboardButton1.setText(e.toString());
-            inlineKeyboardButton1.setCallbackData(e.getId().toString());
+            inlineKeyboardButton1.setCallbackData("cat," + e.getId().toString());
             rowInline1.add(inlineKeyboardButton1);
             rowsInline.add(rowInline1);
         }
 
         markupInline.setKeyboard(rowsInline);
         message.setReplyMarkup(markupInline);
-
         return message;
 
     }
@@ -444,7 +455,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(chat_id);
         message.setText("Выберите питомца");
-
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
@@ -453,14 +463,13 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
             List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
             inlineKeyboardButton1.setText(e.toString());
-            inlineKeyboardButton1.setCallbackData(e.getId().toString());
+            inlineKeyboardButton1.setCallbackData("dog," + e.getId().toString());
             rowInline1.add(inlineKeyboardButton1);
             rowsInline.add(rowInline1);
         }
 
         markupInline.setKeyboard(rowsInline);
         message.setReplyMarkup(markupInline);
-
         return message;
 
     }
@@ -469,20 +478,26 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(chat_id);
         message.setText("Вы можете просмотреть фото питомца " + petService.getById(id).getName());
-
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
         InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
         inlineKeyboardButton1.setText("Посмотреть фото");
-        inlineKeyboardButton1.setCallbackData(id.toString());
+        inlineKeyboardButton1.setCallbackData("photo," + id.toString());
         rowInline1.add(inlineKeyboardButton1);
         rowsInline.add(rowInline1);
-
-
         markupInline.setKeyboard(rowsInline);
         message.setReplyMarkup(markupInline);
-
         return message;
+    }
+
+    public SendPhoto sendPhoto(long chat_id, Long id) {
+        String filePath = avatarService.findAvatar(id)
+                .getFilePath();
+        InputFile file = new InputFile(new File(filePath));
+        return SendPhoto.builder()
+                .chatId(chat_id)
+                .photo(file)
+                .build();
     }
 }
