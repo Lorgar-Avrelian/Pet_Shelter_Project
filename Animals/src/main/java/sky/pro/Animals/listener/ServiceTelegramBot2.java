@@ -130,31 +130,29 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
          например "YES_BUTTON" это id для кнопки yes. В зависимости от id кнопки возвращает функционал этой кнопки
          */
         else if (update.hasCallbackQuery()) {  //может в update передался id кнопки(yesButton.setCallbackData("YES_BUTTON"))
-            String callBackData = update.getCallbackQuery().getData();//получаем запрос,Id нажатой кнопки
-            long messageID = update.getCallbackQuery().getMessage().getMessageId();//получаем инфу по message  через update.getCallbackQuery()потомучто в updata сообщения нет
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-             if (update.hasCallbackQuery()) {
+
+            if (update.hasCallbackQuery()) {
                 String[] call_data = update.getCallbackQuery().getData().split(",");
                 String tag = call_data[0];
                 String id = call_data[1];
                 long chat_id = update.getCallbackQuery().getMessage().getChatId();
-                try{
-                switch (tag) {
-                    case "dog" : {
-                        execute(getPhoto(chat_id, Long.parseLong(id)));
-                        break;
+                try {
+                    switch (tag) {
+                        case "dog": {
+                            execute(getPhoto(chat_id, Long.parseLong(id)));
+                            break;
+                        }
+                        case "cat": {
+                            execute(getPhoto(chat_id, Long.parseLong(id)));
+                            break;
+                        }
+                        case "photo": {
+                            execute(sendPhoto(chat_id, Long.parseLong(id)));
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    case "cat" : {
-                        execute(getPhoto(chat_id, Long.parseLong(id)));
-                        break;
-                    }
-                    case "photo" : {
-                        execute(sendPhoto(chat_id, Long.parseLong(id)));
-                        break;
-                    }
-                    default: break;
-                }
-
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
@@ -163,7 +161,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
     }
 
     /**
-     * Аналог метода {@link ServiceTelegramBot2#buttonForShelters(Long chatId)}
+     * Регистрация клиента
      *
      * @param chatId
      */
