@@ -298,18 +298,6 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         }
     }
 
-
-    private ReplyKeyboardMarkup buttonsForDefault() {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();//разметка для клавиатуры}
-        List<KeyboardRow> keyboardRows = new ArrayList<>(); //список из рядов(ряд в который добавляем кнопки
-        KeyboardRow row = new KeyboardRow();//ряд1
-        row.add("проверка 1");
-        row.add("проверка 2");
-        keyboardRows.add(row);      //ряд 1 добавили
-        replyKeyboardMarkup.setKeyboard(keyboardRows);//добавляем лист с рядами в метод для разметки
-        return replyKeyboardMarkup;
-    }
-
     public SendMessage getCat(long chat_id) {
 
         SendMessage message = new SendMessage();
