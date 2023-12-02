@@ -69,15 +69,15 @@ public class PetAvatarServiceImpl implements PetAvatarService {
         petAvatarRepository.save(petAvatar);
     }
 
-    private String getExtension(String filename) {
+    public String getExtension(String filename) {
         return filename.substring(filename.lastIndexOf(".") + 1);
     }
 
-    private PetAvatar getPetAvatar(Long id) {
+    public PetAvatar getPetAvatar(Long id) {
         return petAvatarRepository.findByPetId(id).orElse(new PetAvatar());
     }
 
-    private byte[] generateImagePreview(Path filePath) throws IOException {
+    public byte[] generateImagePreview(Path filePath) throws IOException {
         try (
                 InputStream is = Files.newInputStream(filePath);
                 BufferedInputStream bis = new BufferedInputStream(is, 1024);
