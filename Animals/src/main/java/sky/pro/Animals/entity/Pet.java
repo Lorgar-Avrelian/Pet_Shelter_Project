@@ -96,7 +96,6 @@ public class Pet {
     @Override
     public String toString() {
         return  name + '\n' +
-                ", Дата рождения = " + birthday
-                + ", id = " + id + '\n';
+                "Дата рождения = " + birthday +  '\n';
     }
 }

@@ -97,7 +97,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     startCommand(chatId, update.getMessage().getChat().getFirstName());
                     registerUsers(update.getMessage());
                     break;
-                case "/Приют для кошек":
+                case "Приют для кошек":
                     String c = "Вас приветствует приют для кошек";
                     sendMessage(replyKeyboardMarkup, chatId, c);
                     try {
@@ -106,7 +106,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                         throw new RuntimeException(e);
                     }
                     break;
-                case "/Приют для собак":
+                case "Приют для собак":
                     String d = "Вас приветствует приют для собак";
                     sendMessage(replyKeyboardMarkup, chatId, d);
                     try {
@@ -114,6 +114,46 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
+                    break;
+                case "Информация о приюте для кошек":
+                    String text = infoService.getInfoTextById(1L);
+                    sendMessage(replyKeyboardMarkup, chatId, text);
+                    try {
+                        execute(getDog(chatId));
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "Расписание, адрес, схема проезда(К)", "Расписание, адрес, схема проезда(С)":
+                    String text1 = infoService.getInfoTextById(3L) + "\n" + infoService.getInfoTextById(4L) + "\n" + infoService.getInfoTextById(5L);
+                    sendMessage(replyKeyboardMarkup, chatId, text1);
+                    try {
+                        execute(getDog(chatId));
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "Оформить пропуск(К)":
+                    break;
+                case "ТБ(К)", "ТБ(С)":
+                    String text2 = infoService.getInfoTextById(7L);
+                    sendMessage(replyKeyboardMarkup, chatId, text2);
+                    try {
+                        execute(getDog(chatId));
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "Информация о приюте для собак":
+                    String text3 = infoService.getInfoTextById(2L);
+                    sendMessage(replyKeyboardMarkup, chatId, text3);
+                    try {
+                        execute(getDog(chatId));
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "Оформить пропуск(С)":
                     break;
                 case "/register":
                     buttonsForRegister(chatId);
@@ -138,16 +178,13 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                 long chat_id = update.getCallbackQuery().getMessage().getChatId();
                 try {
                     switch (tag) {
-                        case "dog": {
-                            execute(getPhoto(chat_id, Long.parseLong(id)));
-                            break;
-                        }
-                        case "cat": {
+                        case "dog", "cat": {
                             execute(getPhoto(chat_id, Long.parseLong(id)));
                             break;
                         }
                         case "photo": {
                             execute(sendPhoto(chat_id, Long.parseLong(id)));
+                            execute(syncWithVolunteer(chat_id));
                             break;
                         }
                         default:
@@ -246,10 +283,25 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
     private ReplyKeyboardMarkup buttonsForStart() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();//разметка для клавиатуры}
         List<KeyboardRow> keyboardRows = new ArrayList<>(); //список из рядов(ряд в который добавляем кнопки
-        KeyboardRow row = new KeyboardRow();//ряд1
-        row.add("/Приют для кошек");
-        row.add("/Приют для собак");
-        keyboardRows.add(row);      //ряд 1 добавили
+        KeyboardRow row1 = new KeyboardRow();//ряд1
+        KeyboardRow row2 = new KeyboardRow();//ряд2
+        KeyboardRow row3 = new KeyboardRow();//ряд3
+        KeyboardRow row4 = new KeyboardRow();//ряд4
+        row1.add("Приют для кошек");
+        row1.add("Приют для собак");
+        row2.add("Информация о приюте для кошек");
+        row2.add("Информация о приюте для собак");
+        row3.add("Расписание, адрес, схема проезда(К)");
+        row3.add("Расписание, адрес, схема проезда(С)");
+        row4.add("Оформить пропуск(К)");
+        row4.add("ТБ(К)");
+        row4.add("Оформить пропуск(С)");
+        row4.add("ТБ(С)");
+
+        keyboardRows.add(row1);      //ряд 1 добавили
+        keyboardRows.add(row2);      //ряд 1 добавили
+        keyboardRows.add(row3);      //ряд 1 добавили
+        keyboardRows.add(row4);      //ряд 1 добавили
         replyKeyboardMarkup.setKeyboard(keyboardRows);//добавляем лист с рядами в метод для разметки
         return replyKeyboardMarkup;
     }
@@ -290,7 +342,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         ) {
             List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
-            inlineKeyboardButton1.setText(e.toString());
+            inlineKeyboardButton1.setText(e.getName() + " Дата рождения " + e.getBirthday());
             inlineKeyboardButton1.setCallbackData("cat," + e.getId().toString());
             rowInline1.add(inlineKeyboardButton1);
             rowsInline.add(rowInline1);
@@ -312,7 +364,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         ) {
             List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
             InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
-            inlineKeyboardButton1.setText(e.toString());
+            inlineKeyboardButton1.setText(e.getName() + " Дата рождения " + e.getBirthday());
             inlineKeyboardButton1.setCallbackData("dog," + e.getId().toString());
             rowInline1.add(inlineKeyboardButton1);
             rowsInline.add(rowInline1);
@@ -330,8 +382,25 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
         InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
-        inlineKeyboardButton1.setText("Посмотреть фото");
+        inlineKeyboardButton1.setText("Посмотреть =>");
         inlineKeyboardButton1.setCallbackData("photo," + id.toString());
+        rowInline1.add(inlineKeyboardButton1);
+        rowsInline.add(rowInline1);
+        markupInline.setKeyboard(rowsInline);
+        message.setReplyMarkup(markupInline);
+        return message;
+    }
+
+    public SendMessage syncWithVolunteer(long chat_id) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chat_id);
+        message.setText("Оставьте заявку нашему волонтеру, он свяжется с Вами в ближайшее время и предоставит интересующую Вас ин формацию");
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+        inlineKeyboardButton1.setText("Оставить заявку волонтеру");
+        inlineKeyboardButton1.setCallbackData(" " + chat_id);
         rowInline1.add(inlineKeyboardButton1);
         rowsInline.add(rowInline1);
         markupInline.setKeyboard(rowsInline);
@@ -346,7 +415,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         return SendPhoto.builder()
                 .chatId(chat_id)
                 .photo(file)
-                .caption(petService.getById(id).toString() + "\n" + "Если Вас заинтересовал питомец, запомните его ID и сообщите волонтеру")
+                .caption(petService.getById(id).toString() + "\n" + "Если Вас заинтересовал питомец Вы можете связаться с волонтером для получения информации о дальнейших действиях")
                 .build();
     }
 }
