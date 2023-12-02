@@ -97,7 +97,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                     startCommand(chatId, update.getMessage().getChat().getFirstName());
                     registerUsers(update.getMessage());
                     break;
-                case "Приют для кошек":
+                case "Приют для кошек =>":
                     String c = "Вас приветствует приют для кошек";
                     sendMessage(replyKeyboardMarkup, chatId, c);
                     try {
@@ -106,7 +106,7 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                         throw new RuntimeException(e);
                     }
                     break;
-                case "Приют для собак":
+                case "Приют для собак =>":
                     String d = "Вас приветствует приют для собак";
                     sendMessage(replyKeyboardMarkup, chatId, d);
                     try {
@@ -118,40 +118,20 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
                 case "Информация о приюте для кошек":
                     String text = infoService.getInfoTextById(1L);
                     sendMessage(replyKeyboardMarkup, chatId, text);
-                    try {
-                        execute(getDog(chatId));
-                    } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
-                    }
                     break;
                 case "Расписание, адрес, схема проезда(К)", "Расписание, адрес, схема проезда(С)":
                     String text1 = infoService.getInfoTextById(3L) + "\n" + infoService.getInfoTextById(4L) + "\n" + infoService.getInfoTextById(5L);
                     sendMessage(replyKeyboardMarkup, chatId, text1);
-                    try {
-                        execute(getDog(chatId));
-                    } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
-                    }
                     break;
                 case "Оформить пропуск(К)":
                     break;
                 case "ТБ(К)", "ТБ(С)":
                     String text2 = infoService.getInfoTextById(7L);
                     sendMessage(replyKeyboardMarkup, chatId, text2);
-                    try {
-                        execute(getDog(chatId));
-                    } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
-                    }
                     break;
                 case "Информация о приюте для собак":
                     String text3 = infoService.getInfoTextById(2L);
                     sendMessage(replyKeyboardMarkup, chatId, text3);
-                    try {
-                        execute(getDog(chatId));
-                    } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
-                    }
                     break;
                 case "Оформить пропуск(С)":
                     break;
@@ -287,8 +267,8 @@ public class ServiceTelegramBot2 extends TelegramLongPollingBot {
         KeyboardRow row2 = new KeyboardRow();//ряд2
         KeyboardRow row3 = new KeyboardRow();//ряд3
         KeyboardRow row4 = new KeyboardRow();//ряд4
-        row1.add("Приют для кошек");
-        row1.add("Приют для собак");
+        row1.add("Приют для кошек =>");
+        row1.add("Приют для собак =>");
         row2.add("Информация о приюте для кошек");
         row2.add("Информация о приюте для собак");
         row3.add("Расписание, адрес, схема проезда(К)");
