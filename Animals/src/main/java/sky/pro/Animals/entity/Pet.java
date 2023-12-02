@@ -20,8 +20,7 @@ public class Pet {
     private PetVariety petVariety;
     @ManyToOne(fetch = FetchType.LAZY)
     private Client client;
-    public Pet() {
-    }
+
 
     public Pet(Long id, String name, Date birthday, boolean alive, PetVariety petVariety, Client client) {
         this.id = id;
@@ -30,6 +29,9 @@ public class Pet {
         this.alive = alive;
         this.petVariety = petVariety;
         this.client = client;
+    }
+
+    public Pet(long id, String fluffy, java.util.Date date, boolean alive, PetVariety petVariety, Object client) {
     }
 
     public Long getId() {

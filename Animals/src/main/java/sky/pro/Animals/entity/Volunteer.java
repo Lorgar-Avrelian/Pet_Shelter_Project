@@ -19,7 +19,7 @@ public class Volunteer {
     private Integer chatId;
     private String workPosition;
 
-    public Volunteer() {
+    public Volunteer(long id, String johnDoe, String address, java.util.Date date, String ab123456, int chatId, String workPosition) {
     }
 
     public Volunteer(Long id, String fio, String address, Date birthday, String passport, Integer chatId, String workPosition) {

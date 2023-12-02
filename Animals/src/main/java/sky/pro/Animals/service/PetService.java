@@ -16,12 +16,4 @@ public interface PetService {
     Pet delete(Long id);
 
     String getPetListByVariety(PetVariety petVariety);
-
-
-
-
-
-
-
-
 }
