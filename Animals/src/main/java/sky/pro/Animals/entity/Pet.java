@@ -31,8 +31,14 @@ public class Pet {
         this.client = client;
     }
 
+    public Pet() {
+
+    }
+
     public Pet(long id, String fluffy, java.util.Date date, boolean alive, PetVariety petVariety, Object client) {
     }
+
+
 
     public Long getId() {
         return id;
