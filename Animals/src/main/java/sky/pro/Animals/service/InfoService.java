@@ -12,4 +12,6 @@ public interface InfoService {
     Collection<Info> getAllInfo();
 
     String getInfoTextById(Long id);
+
+    String getInfoKeyById(Long id);
 }

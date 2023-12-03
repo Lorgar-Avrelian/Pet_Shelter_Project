@@ -6,6 +6,7 @@ import sky.pro.Animals.entity.Client;
 import sky.pro.Animals.repository.ClientRepository;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /**
  * Service for working with clients data
@@ -94,8 +95,23 @@ public class ClientServiceImpl implements ClientService {
         return client;
     }
 
+    /**
+     * Method for searching client with this chatId from DB. <br>
+     * Used repository method {@link ClientRepository#findByChatId(Long)} <br>
+     * <hr>
+     * Метод для поиска в БД клиента с данным chatId. <br>
+     * Используется метод репозитория {@link ClientRepository#findByChatId(Long)} <br>
+     * <hr>
+     *
+     * @param chatId
+     * @return Client or null / Клиента или null
+     */
     @Override
     public Client getByChatId(Long chatId) {
-        return clientRepository.findByChatId(chatId).get();
+        try {
+            return clientRepository.findByChatId(chatId).get();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 }

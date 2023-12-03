@@ -16,13 +16,13 @@ public class Volunteer {
     private String address;
     private Date birthday;
     private String passport;
-    private Integer chatId;
+    private Long chatId;
     private String workPosition;
 
     public Volunteer() {
     }
 
-    public Volunteer(Long id, String fio, String address, Date birthday, String passport, Integer chatId, String workPosition) {
+    public Volunteer(Long id, String fio, String address, Date birthday, String passport, Long chatId, String workPosition) {
         this.id = id;
         this.fio = fio;
         this.address = address;
@@ -72,11 +72,11 @@ public class Volunteer {
         this.passport = passport;
     }
 
-    public Integer getChatId() {
+    public Long getChatId() {
         return chatId;
     }
 
-    public void setChatId(Integer chatId) {
+    public void setChatId(Long chatId) {
         this.chatId = chatId;
     }
 

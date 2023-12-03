@@ -33,7 +33,6 @@ public class Client {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
-
         this.address = address;
         this.birthday = birthday;
         this.passport = passport;
@@ -72,7 +71,6 @@ public class Client {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-
 
     public String getAddress() {
         return address;
@@ -121,7 +119,6 @@ public class Client {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", userName='" + userName + '\'' +
-
                 ", address='" + address + '\'' +
                 ", birthday=" + birthday +
                 ", passport='" + passport + '\'' +

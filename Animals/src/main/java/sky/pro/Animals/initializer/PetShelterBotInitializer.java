@@ -1,8 +1,6 @@
 package sky.pro.Animals.initializer;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -14,15 +12,14 @@ import org.telegram.telegrambots.meta.generics.TelegramBot;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import sky.pro.Animals.service.InfoServiceImpl;
 
-
 @Component
-public class BotInitializer2 {
+@Log4j
+public class PetShelterBotInitializer {
     private final InfoServiceImpl infoService;
-    Logger LOG = LoggerFactory.getLogger(BotInitializer2.class);
     @Autowired
     TelegramBot Bot;
 
-    public BotInitializer2(InfoServiceImpl infoService) {
+    public PetShelterBotInitializer(InfoServiceImpl infoService) {
         this.infoService = infoService;
     }
 
@@ -33,7 +30,7 @@ public class BotInitializer2 {
         try {
             telegramBotsApi.registerBot((LongPollingBot) Bot);
         } catch (TelegramApiException e) {
-            LOG.error("error occurred: " + e.getMessage());
+            log.error(e.getMessage());
         }
     }
 }

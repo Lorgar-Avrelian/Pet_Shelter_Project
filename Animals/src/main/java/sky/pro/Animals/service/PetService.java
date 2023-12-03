@@ -4,6 +4,7 @@ import sky.pro.Animals.entity.Pet;
 import sky.pro.Animals.model.PetVariety;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface PetService {
     Collection<Pet> getAll();
@@ -14,5 +15,5 @@ public interface PetService {
 
     Pet delete(Long id);
 
-    String getPetListByVariety(PetVariety petVariety);
+    List<Pet> getPetListByVariety(PetVariety petVariety);
 }

@@ -1,5 +1,6 @@
 package sky.pro.Animals.service;
 
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Pet;
@@ -57,6 +58,7 @@ public class PetServiceImpl implements PetService {
         return petRepository.findById(id).get();
     }
 
+
     /**
      * Method for saving pet in DB. <br>
      * Used repository method {@link JpaRepository#save(Object)}
@@ -106,12 +108,7 @@ public class PetServiceImpl implements PetService {
      * @return string with a list of animals / строку со списком животных
      */
     @Override
-    public String getPetListByVariety(PetVariety petVariety) {
-        List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety);
-        String answer = null;
-        for (Pet pet : sortedPetList) {
-            answer += pet.getId() + " " + pet.getName() + " " + pet.getBirthday() + " <br>";
-        }
-        return answer;
+    public List<Pet> getPetListByVariety(PetVariety petVariety) {
+        return petRepository.findAllByPetVariety(petVariety);
     }
 }

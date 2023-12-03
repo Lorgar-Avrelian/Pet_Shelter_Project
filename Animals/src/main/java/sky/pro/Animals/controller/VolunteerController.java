@@ -55,7 +55,7 @@ public class VolunteerController {
                                                     @RequestParam String address,
                                                     @RequestParam Date birthday,
                                                     @RequestParam String passport,
-                                                    @RequestParam Integer chatId,
+                                                    @RequestParam Long chatId,
                                                     @RequestParam String workPosition) {
         infoService.checkInfo();
         Volunteer volunteer = new Volunteer(id, fio, address, birthday, passport, chatId, workPosition);
@@ -73,7 +73,7 @@ public class VolunteerController {
                                                    @RequestParam String address,
                                                    @RequestParam Date birthday,
                                                    @RequestParam String passport,
-                                                   @RequestParam Integer chatId,
+                                                   @RequestParam Long chatId,
                                                    @RequestParam String workPosition) {
         infoService.checkInfo();
         Volunteer volunteer = new Volunteer(id, fio, address, birthday, passport, chatId, workPosition);
