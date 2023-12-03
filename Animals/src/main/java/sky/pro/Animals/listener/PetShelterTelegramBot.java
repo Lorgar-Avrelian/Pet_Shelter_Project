@@ -2,6 +2,7 @@ package sky.pro.Animals.listener;
 
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -17,13 +18,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import sky.pro.Animals.configuration.PetShelterTelegramConfig;
-import sky.pro.Animals.entity.Client;
-import sky.pro.Animals.entity.Pet;
-import sky.pro.Animals.entity.PetAvatar;
-import sky.pro.Animals.entity.Volunteer;
+import sky.pro.Animals.entity.*;
 import sky.pro.Animals.service.*;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,14 +39,16 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
     private final InfoServiceImpl infoService;
     private final PetShelterTelegramConfig botConfig;
     private final VolunteerServiceImpl volunteerService;
+    private final SchedulerServiceImpl schedulerService;
 
-    public PetShelterTelegramBot(PetServiceImpl petService, PetAvatarServiceImpl petAvatarService, ClientServiceImpl clientService, InfoServiceImpl infoService, PetShelterTelegramConfig botConfig, VolunteerServiceImpl volunteerService) {
+    public PetShelterTelegramBot(PetServiceImpl petService, PetAvatarServiceImpl petAvatarService, ClientServiceImpl clientService, InfoServiceImpl infoService, PetShelterTelegramConfig botConfig, VolunteerServiceImpl volunteerService, SchedulerServiceImpl schedulerService) {
         this.petService = petService;
         this.petAvatarService = petAvatarService;
         this.clientService = clientService;
         this.infoService = infoService;
         this.botConfig = botConfig;
         this.volunteerService = volunteerService;
+        this.schedulerService = schedulerService;
         try {
             List<BotCommand> botCommands = new ArrayList<>(List.of(
                     new BotCommand("/start", "Информация о приюте"),
@@ -198,7 +199,9 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText("Имя                ДР\n");
-        List<Pet> catsList = petService.getPetListByVariety(cat);
+        List<Pet> catsList = petService.getPetListByVariety(cat).stream()
+                .filter(pet -> pet.getClient() == null)
+                .toList();
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         for (Pet pet : catsList) {
@@ -223,7 +226,9 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText("Имя                ДР\n");
-        List<Pet> dogsList = petService.getPetListByVariety(dog);
+        List<Pet> dogsList = petService.getPetListByVariety(dog).stream()
+                .filter(pet -> pet.getClient() == null)
+                .toList();
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         for (Pet pet : dogsList) {
@@ -285,7 +290,9 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         var nextButton = new InlineKeyboardButton();
         previousButton.setText("Предыдущий");
         nextButton.setText("Следующий");
-        List<Pet> petList = petService.getPetListByVariety(pet.getPetVariety());
+        List<Pet> petList = petService.getPetListByVariety(pet.getPetVariety()).stream()
+                .filter(pet1 -> pet1.getClient() == null)
+                .toList();
         int petIndex = 0;
         int previousPetIndex = petList.size() - 1;
         int nextPetIndex = 1;
@@ -347,6 +354,41 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
             execute(sendMessage);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void dailyForm() {
+        schedulerService.updateProbation();
+        List<ProbationPeriod> probations = schedulerService.getProbation();
+        LocalDate localDate = LocalDate.ofEpochDay(System.currentTimeMillis());
+        for (ProbationPeriod probation : probations) {
+            if (probation.getLastDate().toLocalDate().isBefore(localDate)) {
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(probation.getClientId());
+                sendMessage.setText(infoService.getInfoTextById(17L));
+                try {
+                    execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    log.error(e.getMessage());
+                }
+            } else if (probation.getLastDate().toLocalDate().isEqual(localDate)) {
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(probation.getClientId());
+                sendMessage.setText(infoService.getInfoTextById(18L));
+                try {
+                    execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    log.error(e.getMessage());
+                }
+            } else {
+                schedulerService.deleteProbation(probation.getId());
+                petService.delete(probation.getPetId());
+                Client client = clientService.getById(probation.getClientId());
+                if (client.getPets() == null) {
+                    clientService.delete(probation.getClientId());
+                }
+            }
         }
     }
 }

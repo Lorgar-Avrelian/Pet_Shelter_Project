@@ -11,6 +11,8 @@ import sky.pro.Animals.service.PetServiceImpl;
 
 import java.sql.Date;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 /**
  * Controller for CRUD operations with pets data
@@ -63,12 +65,18 @@ public class PetController {
                                         @RequestParam(required = false) Long clientId) {
         infoService.checkInfo();
         Client client;
-        if (clientId == null || clientService.getById(clientId) == null) {
+        if (clientId == null) {
+            client = null;
+        } else if (clientService.getById(clientId) == null) {
             client = null;
         } else {
             client = clientService.getById(clientId);
         }
         Pet pet = new Pet(id, name, birthday, alive, petVariety, client);
+        Collection<Pet> clientPets = clientService.getById(clientId).getPets();
+        clientPets.add(pet);
+        client.setPets(clientPets);
+        clientService.save(client);
         Pet savedPet = petService.save(pet);
         if (savedPet == null) {
             return ResponseEntity.status(400).build();
@@ -86,12 +94,18 @@ public class PetController {
                                        @RequestParam(required = false) Long clientId) {
         infoService.checkInfo();
         Client client;
-        if (clientId == null || clientService.getById(clientId) == null) {
+        if (clientId == null) {
+            client = null;
+        } else if (clientService.getById(clientId) == null) {
             client = null;
         } else {
             client = clientService.getById(clientId);
         }
         Pet pet = new Pet(id, name, birthday, alive, petVariety, client);
+        Collection<Pet> clientPets = clientService.getById(clientId).getPets();
+        clientPets.add(pet);
+        client.setPets(clientPets);
+        clientService.save(client);
         Pet editedPet = petService.save(pet);
         if (editedPet == null) {
             return ResponseEntity.status(400).build();
@@ -103,6 +117,14 @@ public class PetController {
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Pet> deletePet(@PathVariable Long id) {
         infoService.checkInfo();
+        Client client = petService.getById(id).getClient();
+        if (client != null) {
+            Collection<Pet> clientPets = client.getPets().stream()
+                    .filter(pet -> !pet.equals(petService.getById(id)))
+                    .collect(Collectors.toCollection(LinkedList::new));
+            client.setPets(clientPets);
+            clientService.save(client);
+        }
         Pet deletedPet = petService.delete(id);
         if (deletedPet == null) {
             return ResponseEntity.status(400).build();

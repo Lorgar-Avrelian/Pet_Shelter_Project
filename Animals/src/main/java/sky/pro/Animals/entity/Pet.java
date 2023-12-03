@@ -1,5 +1,6 @@
 package sky.pro.Animals.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import sky.pro.Animals.model.PetVariety;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ public class Pet {
     private PetVariety petVariety;
     @ManyToOne(fetch = FetchType.LAZY)
     private Client client;
+
     public Pet() {
     }
 
@@ -72,6 +74,7 @@ public class Pet {
         this.petVariety = petVariety;
     }
 
+    @JsonBackReference
     public Client getClient() {
         return client;
     }
