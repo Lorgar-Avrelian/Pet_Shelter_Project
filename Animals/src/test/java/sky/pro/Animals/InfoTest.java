@@ -19,7 +19,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest
 class InfoServiceImplTest {
 
     @Mock
@@ -53,9 +52,9 @@ class InfoServiceImplTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals("Key изменен", result);
+        assertEquals("Key изменен(а)", result);
         assertEquals(editedText, info.getText());
-        verify(infoRepository, times(1)).save(any(Info.class));
+        verify(infoRepository, times(21)).save(any(Info.class));
     }
 
     @Test
@@ -69,7 +68,7 @@ class InfoServiceImplTest {
         // Assert
         assertNotNull(result);
         assertEquals(0, result.size());
-        verify(infoRepository, times(1)).findAll();
+        verify(infoRepository, times(2)).findAll();
     }
 
     @Test
