@@ -2,6 +2,7 @@ package sky.pro.Animals.listener;
 
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -22,6 +23,7 @@ import sky.pro.Animals.entity.*;
 import sky.pro.Animals.service.*;
 
 import java.io.File;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +34,7 @@ import static sky.pro.Animals.model.PetVariety.dog;
 
 @Component
 @Log4j
+@EnableScheduling
 public class PetShelterTelegramBot extends TelegramLongPollingBot {
     private final PetServiceImpl petService;
     private final PetAvatarServiceImpl petAvatarService;
@@ -361,20 +364,21 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
     public void dailyForm() {
         schedulerService.updateProbation();
         List<ProbationPeriod> probations = schedulerService.getProbation();
-        LocalDate localDate = LocalDate.ofEpochDay(System.currentTimeMillis());
+        LocalDate localDate = LocalDate.now();
+        Date date = Date.valueOf(localDate);
         for (ProbationPeriod probation : probations) {
-            if (probation.getLastDate().toLocalDate().isBefore(localDate)) {
+            if (probation.getLastDate().after(date)) {
                 SendMessage sendMessage = new SendMessage();
-                sendMessage.setChatId(probation.getClientId());
+                sendMessage.setChatId(clientService.getById(probation.getClientId()).getChatId());
                 sendMessage.setText(infoService.getInfoTextById(17L));
                 try {
                     execute(sendMessage);
                 } catch (TelegramApiException e) {
                     log.error(e.getMessage());
                 }
-            } else if (probation.getLastDate().toLocalDate().isEqual(localDate)) {
+            } else if (probation.getLastDate().equals(date)) {
                 SendMessage sendMessage = new SendMessage();
-                sendMessage.setChatId(probation.getClientId());
+                sendMessage.setChatId(clientService.getById(probation.getClientId()).getChatId());
                 sendMessage.setText(infoService.getInfoTextById(18L));
                 try {
                     execute(sendMessage);

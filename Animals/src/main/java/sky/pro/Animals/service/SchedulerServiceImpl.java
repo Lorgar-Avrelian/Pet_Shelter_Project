@@ -38,9 +38,9 @@ public class SchedulerServiceImpl implements SchedulerService {
                 ProbationPeriod probationPeriod = new ProbationPeriod();
                 probationPeriod.setPetId(pet.getId());
                 probationPeriod.setClientId(pet.getClient().getId());
-                LocalDate localDate = LocalDate.ofEpochDay(System.currentTimeMillis());
-                localDate.plusMonths(1);
-                probationPeriod.setLastDate(Date.valueOf(localDate));
+                LocalDate localDate = LocalDate.now();
+                Date lastDate = Date.valueOf(localDate.plusMonths(1));
+                probationPeriod.setLastDate(lastDate);
                 probation.save(probationPeriod);
             }
         }
