@@ -12,7 +12,9 @@ import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.repository.PetRepository;
 import sky.pro.Animals.service.PetServiceImpl;
 
+import java.sql.Date;
 import java.util.*;
+import java.sql.*;
 
 @ExtendWith(MockitoExtension.class)
 class PetServiceImplTest {
@@ -26,8 +28,8 @@ class PetServiceImplTest {
     @Test
     void testGetAll() {
         // Arrange
-        Pet pet1 = new Pet(1L, "Fluffy", new Date(), true, PetVariety.cat, null);
-        Pet pet2 = new Pet(2L, "Buddy", new Date(), true, PetVariety.DOG, null);
+        Pet pet1 = new Pet(1L, "Fluffy", new Date(2023, 11, 20), true, PetVariety.cat, null);
+        Pet pet2 = new Pet(2L, "Buddy", new Date(2023, 11, 20), true, PetVariety.dog, null);
         Collection<Pet> mockPetList = Arrays.asList(pet1, pet2);
 
         // Mocking the behavior of the petRepository
@@ -45,7 +47,7 @@ class PetServiceImplTest {
     @Test
     void testGetById() {
         // Arrange
-        Pet pet = new Pet(1L, "Fluffy", new Date(), true, PetVariety.dog, null);
+        Pet pet = new Pet(1L, "Fluffy", new Date(2023, 11, 20), true, PetVariety.dog, null);
 
         // Mocking the behavior of the petRepository
         Mockito.when(petRepository.findById(1L)).thenReturn(Optional.of(pet));
@@ -61,7 +63,7 @@ class PetServiceImplTest {
     @Test
     void testSave() {
         // Arrange
-        Pet pet = new Pet(1L, "Fluffy", new Date(), true, PetVariety.DOG, null);
+        Pet pet = new Pet(1L, "Fluffy", new Date(2023, 11, 20), true, PetVariety.dog, null);
 
         // Mocking the behavior of the petRepository
         Mockito.when(petRepository.save(pet)).thenReturn(pet);
@@ -77,7 +79,7 @@ class PetServiceImplTest {
     @Test
     void testDelete() {
         // Arrange
-        Pet pet = new Pet(1L, "Fluffy", new Date(), true, PetVariety.cat, null);
+        Pet pet = new Pet(1L, "Fluffy", new Date(2023, 11, 20), true, PetVariety.cat, null);
 
         // Mocking the behavior of the petRepository
         Mockito.when(petRepository.getById(1L)).thenReturn(pet);
@@ -94,8 +96,8 @@ class PetServiceImplTest {
     void testGetPetListByVariety() {
         // Arrange
         List<Pet> mockPetList = Arrays.asList(
-                new Pet(1L, "Fluffy", new Date(), true, PetVariety.cat, null),
-                new Pet(2L, "Buddy", new Date(), true, PetVariety.cat, null)
+                new Pet(1L, "Fluffy", new Date(2023, 11, 20), true, PetVariety.cat, null),
+                new Pet(2L, "Buddy", new Date(2023, 11, 20), true, PetVariety.cat, null)
         );
 
         // Mocking the behavior of the petRepository

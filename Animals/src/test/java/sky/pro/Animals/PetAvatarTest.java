@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.sql.Date;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,7 +59,7 @@ class PetAvatarServiceImplTest {
         // Arrange
         Long petId = 1L;
         MultipartFile file = new MockMultipartFile("testFile", "test.txt", "text/plain", "Hello, World!".getBytes());
-        Pet pet = new Pet(1L, "Fluffy", new Date(), true, PetVariety.cat, null);
+        Pet pet = new Pet(1L, "Fluffy", new Date(2023, 11, 20), true, PetVariety.cat, null);
         when(petService.getById(eq(petId))).thenReturn(pet);
 
         // Act
