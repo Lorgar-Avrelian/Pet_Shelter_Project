@@ -1,5 +1,7 @@
 package sky.pro.Animals.service;
 
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Info;
@@ -160,6 +162,7 @@ public class InfoServiceImpl implements InfoService {
      * @see JpaRepository#save(Object)
      */
     @Override
+    @CachePut(value = "info", key = "#info.id")
     public String editInfo(Long id, String editedText) {
         checkInfo();
         Info info = infoRepository.getById(id);
@@ -180,6 +183,7 @@ public class InfoServiceImpl implements InfoService {
      * @see JpaRepository#findAll()
      */
     @Override
+    @Cacheable("info")
     public Collection<Info> getAllInfo() {
         checkInfo();
         return infoRepository.findAll();
@@ -217,6 +221,7 @@ public class InfoServiceImpl implements InfoService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @Cacheable("info")
     public String getInfoTextById(Long id) {
         return infoRepository.findById(id).get().getText();
     }

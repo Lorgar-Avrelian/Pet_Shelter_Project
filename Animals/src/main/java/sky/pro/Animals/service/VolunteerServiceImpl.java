@@ -1,5 +1,8 @@
 package sky.pro.Animals.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Volunteer;
@@ -34,6 +37,7 @@ public class VolunteerServiceImpl implements VolunteerService {
      * @see JpaRepository#findAll()
      */
     @Override
+    @Cacheable("volunteer")
     public Collection<Volunteer> getAll() {
         return volunteerRepository.findAll();
     }
@@ -51,6 +55,7 @@ public class VolunteerServiceImpl implements VolunteerService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @Cacheable("volunteer")
     public Volunteer getById(Long id) {
         return volunteerRepository.findById(id).get();
     }
@@ -68,6 +73,7 @@ public class VolunteerServiceImpl implements VolunteerService {
      * @see JpaRepository#save(Object)
      */
     @Override
+    @CachePut(value = "volunteer", key = "#volunteer.id")
     public Volunteer save(Volunteer volunteer) {
         return volunteerRepository.save(volunteer);
     }
@@ -88,6 +94,7 @@ public class VolunteerServiceImpl implements VolunteerService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @CacheEvict("volunteer")
     public Volunteer delete(Long id) {
         Volunteer volunteer = volunteerRepository.getById(id);
         volunteerRepository.delete(volunteer);

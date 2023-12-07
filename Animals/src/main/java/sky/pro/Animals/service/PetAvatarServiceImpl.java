@@ -2,6 +2,8 @@ package sky.pro.Animals.service;
 
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sky.pro.Animals.entity.Pet;
@@ -33,6 +35,7 @@ public class PetAvatarServiceImpl implements PetAvatarService {
     }
 
     @Override
+    @Cacheable("avatar")
     public PetAvatar findAvatar(Long id) {
         log.info("Searching avatar by id " + id);
         PetAvatar answer = petAvatarRepository.findById(id).get();
@@ -41,6 +44,7 @@ public class PetAvatarServiceImpl implements PetAvatarService {
     }
 
     @Override
+    @CachePut(value = "avatar", key = "#avatar.id")
     public void uploadAvatar(Long id, MultipartFile file) throws IOException {
         log.info("Trying to upload avatar for student with id " + id);
         Pet pet = petService.getById(id);

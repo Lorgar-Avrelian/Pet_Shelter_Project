@@ -100,7 +100,6 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 client.setChatId(chatId);
                 clientService.save(client);
             }
-            System.out.println(message);
             switch (message) {
                 case "/start" -> {
                     sendMessage(chatId, infoService.getInfoTextById(1L) + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
@@ -162,6 +161,9 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 case "Связаться с волонтёром" -> {
                     callVolunteer(chatId, userName);
                 }
+                case "Пройти регистрацию" -> {
+                    registration(chatId);
+                }
                 default -> {
                     sendMessage(chatId, "Я Вас не понимаю.\n\nПожалуйста, введите другую команду, воспользуйтесь Menu бота или свяжитесь с волонтёром.");
                 }
@@ -169,7 +171,6 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         } else if (update.hasCallbackQuery()) {
             String message = update.getCallbackQuery().getData();
             Long chatId = update.getCallbackQuery().getMessage().getChatId();
-            System.out.println(message);
             getPet(message, chatId);
         }
     }
@@ -187,21 +188,19 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         keyboardRow = new KeyboardRow();
         keyboardRow.add("Связаться с волонтёром");
         keyboardRows.add(keyboardRow);
+        keyboardRow = new KeyboardRow();
+        keyboardRow.add("Пройти регистрацию");
+        keyboardRows.add(keyboardRow);
         keyboardMarkup.setKeyboard(keyboardRows);
         keyboardMarkup.setResizeKeyboard(true);
         sendMessage.setReplyMarkup(keyboardMarkup);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException();
-        }
+        exec(sendMessage);
     }
 
     private void catsList(Long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("Имя                ДР\n");
+        sendMessage.setText("Котик ищет хозяина\n");
         List<Pet> catsList = petService.getPetListByVariety(cat).stream()
                 .filter(pet -> pet.getClient() == null)
                 .toList();
@@ -217,18 +216,13 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         }
         markupInLine.setKeyboard(rowsInLine);
         sendMessage.setReplyMarkup(markupInLine);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException();
-        }
+        exec(sendMessage);
     }
 
     private void dogsList(Long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("Имя                ДР\n");
+        sendMessage.setText("Пёсик ищет хозяина\n");
         List<Pet> dogsList = petService.getPetListByVariety(dog).stream()
                 .filter(pet -> pet.getClient() == null)
                 .toList();
@@ -244,12 +238,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         }
         markupInLine.setKeyboard(rowsInLine);
         sendMessage.setReplyMarkup(markupInLine);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException();
-        }
+        exec(sendMessage);
     }
 
     private void getPet(String message, Long chatId) {
@@ -276,11 +265,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 sendMessage.setChatId(chatId);
                 sendMessage.setText(pet.getName() + " родился " + pet.getBirthday());
                 sendMessage.setReplyMarkup(photoMarkup(pet));
-                try {
-                    execute(sendMessage);
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                }
+                exec(sendMessage);
             }
         }
     }
@@ -344,20 +329,30 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(volunteer.getChatId());
             sendMessage.setText("Клиент @" + userName + " хочет с Вами связаться!");
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                log.error(e.getMessage());
-            }
+            exec(sendMessage);
         }
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText("Наши волонтёры свяжутся с Вами в ближайшее время!");
+        exec(sendMessage);
+    }
+
+    private void exec(SendMessage sendMessage) {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void registration(Long chatId) {
+        Client client = clientService.getByChatId(chatId);
+        if (client.getFirstName() != null && client.getBirthday() != null && client.getAddress() != null && client.getLastName() != null) {
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(chatId);
+            sendMessage.setText("Регистрация уже пройдена!\nДля изменения персональных данных, пожалуйста, свяжитесь с волонтёром!");
+        }
+
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -371,20 +366,12 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setChatId(clientService.getById(probation.getClientId()).getChatId());
                 sendMessage.setText(infoService.getInfoTextById(17L));
-                try {
-                    execute(sendMessage);
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                }
+                exec(sendMessage);
             } else if (probation.getLastDate().equals(date)) {
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setChatId(clientService.getById(probation.getClientId()).getChatId());
                 sendMessage.setText(infoService.getInfoTextById(18L));
-                try {
-                    execute(sendMessage);
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                }
+                exec(sendMessage);
             } else {
                 schedulerService.deleteProbation(probation.getId());
                 petService.delete(probation.getPetId());

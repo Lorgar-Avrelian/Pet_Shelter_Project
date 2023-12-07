@@ -1,5 +1,8 @@
 package sky.pro.Animals.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Client;
@@ -35,6 +38,7 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findAll()
      */
     @Override
+    @Cacheable("client")
     public Collection<Client> getAll() {
         return clientRepository.findAll();
     }
@@ -52,6 +56,7 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @Cacheable("client")
     public Client getById(Long id) {
         return clientRepository.findById(id).get();
     }
@@ -69,6 +74,7 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#save(Object)
      */
     @Override
+    @CachePut(value = "client", key = "#client.id")
     public Client save(Client client) {
         return clientRepository.save(client);
     }
@@ -89,6 +95,7 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @CacheEvict("client")
     public Client delete(Long id) {
         Client client = clientRepository.getById(id);
         clientRepository.delete(client);
