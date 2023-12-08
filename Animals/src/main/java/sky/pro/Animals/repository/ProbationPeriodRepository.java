@@ -6,4 +6,5 @@ import sky.pro.Animals.entity.ProbationPeriod;
 
 @Repository
 public interface ProbationPeriodRepository extends JpaRepository<ProbationPeriod, Long> {
+    ProbationPeriod findByClientId(Long id);
 }

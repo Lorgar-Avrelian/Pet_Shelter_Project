@@ -337,7 +337,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         exec(sendMessage);
     }
 
-    private void exec(SendMessage sendMessage) {
+    public void exec(SendMessage sendMessage) {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {

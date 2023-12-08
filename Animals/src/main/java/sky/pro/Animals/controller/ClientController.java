@@ -1,16 +1,20 @@
 package sky.pro.Animals.controller;
 
+import lombok.extern.log4j.Log4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sky.pro.Animals.entity.Client;
 import sky.pro.Animals.entity.Pet;
+import sky.pro.Animals.listener.PetShelterTelegramBot;
 import sky.pro.Animals.service.ClientServiceImpl;
 import sky.pro.Animals.service.InfoServiceImpl;
 import sky.pro.Animals.service.PetServiceImpl;
+import sky.pro.Animals.service.ProbationPeriodServiceImpl;
 
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /**
  * Controller for CRUD operations with clients data
@@ -20,16 +24,21 @@ import java.util.Collection;
  * Контроллер для CRUD операций с данными клиентов
  */
 @RestController
+@Log4j
 @RequestMapping(path = "/client")
 public class ClientController {
     private final ClientServiceImpl clientService;
     private final InfoServiceImpl infoService;
     private final PetServiceImpl petService;
+    private final PetShelterTelegramBot telegramBot;
+    private final ProbationPeriodServiceImpl probationPeriodService;
 
-    public ClientController(ClientServiceImpl clientService, InfoServiceImpl infoService, PetServiceImpl petService) {
+    public ClientController(ClientServiceImpl clientService, InfoServiceImpl infoService, PetServiceImpl petService, PetShelterTelegramBot telegramBot, ProbationPeriodServiceImpl probationPeriodService) {
         this.clientService = clientService;
         this.infoService = infoService;
         this.petService = petService;
+        this.telegramBot = telegramBot;
+        this.probationPeriodService = probationPeriodService;
     }
 
     @GetMapping(path = "/get")
@@ -158,6 +167,26 @@ public class ClientController {
             return ResponseEntity.status(400).build();
         } else {
             return ResponseEntity.ok().body(deletedClient);
+        }
+    }
+
+    @PutMapping(path = "/add/{days}")
+    public ResponseEntity<Client> addDays(@RequestParam Long id, @RequestParam @PathVariable int days) {
+        Client editedClient;
+        try {
+            editedClient = clientService.getById(id);
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(400).build();
+        }
+        if (editedClient.getPets() == null) {
+            return ResponseEntity.status(400).build();
+        }
+        editedClient = probationPeriodService.changeLastDay(editedClient, days);
+        if (editedClient == null) {
+            return ResponseEntity.status(400).build();
+        } else {
+            return ResponseEntity.ok().body(editedClient);
         }
     }
 }
