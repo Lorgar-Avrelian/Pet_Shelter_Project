@@ -26,6 +26,9 @@ import sky.pro.Animals.entity.*;
 import sky.pro.Animals.service.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
@@ -194,6 +197,24 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 registrationStop(chatId);
             } else {
                 takeReport(chatId);
+            }
+        } else if (update.hasMessage() && update.getMessage().hasPhoto()) {
+            Long chatId = update.getMessage().getChatId();
+            String message = update.getMessage().getText();
+            List<PhotoSize> photos = update.getMessage().getPhoto();
+            System.out.println(photos);
+            GetFile getFile = new GetFile(photos.get(photos.size() - 1).getFileId());
+            try {
+                org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
+                downloadFile(file, new java.io.File("photos/photo" + (photos.size() - 1) + ".png"));
+            } catch (TelegramApiException e) {
+                log.error(e.getMessage());
+            }
+            try {
+                byte[] photoInBytes = Files.readAllBytes(Path.of("photos/photo" + (photos.size() - 1) + ".png"));
+                dailyReport(chatId, message, photoInBytes);
+            } catch (IOException e) {
+                log.error(e.getMessage());
             }
         }
     }
@@ -601,7 +622,10 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
 
     private void takeReport(Long chatId) {
         dailyReportStatus.add(chatId);
-        sendMessage(chatId, "Ожидаем Вашего отчёта!");
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText("Ожидаем Вашего отчёта!");
+        exec(sendMessage);
     }
 
     private void createAnswer(Update update) {
@@ -614,9 +638,6 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 registration(chatId, message);
             }
         } else {
-            List<PhotoSize> photos = update.getMessage().getPhoto();
-            GetFile getFileRequest = new GetFile();
-            getFileRequest.setFileId(photos.get(0).getFileId());
             dailyReport(chatId, message, null);
         }
     }
