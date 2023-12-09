@@ -93,4 +93,13 @@ public class VolunteerServiceImpl implements VolunteerService {
         volunteerRepository.delete(volunteer);
         return volunteer;
     }
+    public Volunteer editVolunteer(Long id, Volunteer volunteer) {
+
+
+        Volunteer vl = volunteerRepository.getById(id);
+        vl.setAddress(volunteer.getAddress());
+        vl.setWorkPosition(volunteer.getWorkPosition());
+
+        return volunteerRepository.save(vl);
+    }
 }

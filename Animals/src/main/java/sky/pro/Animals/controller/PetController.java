@@ -73,7 +73,7 @@ public class PetController {
         if (savedPet == null) {
             return ResponseEntity.status(400).build();
         } else {
-            return ResponseEntity.ok().body(savedPet);
+            return ResponseEntity.ok().build();
         }
     }
 

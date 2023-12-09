@@ -67,7 +67,7 @@ public class VolunteerController {
         }
     }
 
-    @PutMapping(path = "/edit")
+        @PutMapping(path = "/edit")
     public ResponseEntity<Volunteer> editVolunteer(@RequestParam Long id,
                                                    @RequestParam String fio,
                                                    @RequestParam String address,
@@ -84,6 +84,7 @@ public class VolunteerController {
             return ResponseEntity.ok().body(editedVolunteer);
         }
     }
+
 
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Volunteer> deleteVolunteer(@PathVariable Long id) {
