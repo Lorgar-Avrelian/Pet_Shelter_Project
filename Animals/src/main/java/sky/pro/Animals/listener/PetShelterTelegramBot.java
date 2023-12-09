@@ -2,14 +2,17 @@ package sky.pro.Animals.listener;
 
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
@@ -34,6 +37,8 @@ import static sky.pro.Animals.model.PetVariety.dog;
 @Log4j
 @EnableScheduling
 public class PetShelterTelegramBot extends TelegramLongPollingBot {
+    @Value("${daily.report.dir.path}")
+    private String dailyReportDir;
     private final PetServiceImpl petService;
     private final PetAvatarServiceImpl petAvatarService;
     private final ClientServiceImpl clientService;
@@ -41,7 +46,9 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
     private final PetShelterTelegramConfig botConfig;
     private final VolunteerServiceImpl volunteerService;
     private final SchedulerServiceImpl schedulerService;
+    private final DailyReportServiceImpl dailyReportService;
     private final Set<Long> registrationStatus = new HashSet<>();
+    private final Set<Long> dailyReportStatus = new HashSet<>();
 
     public PetShelterTelegramBot(PetServiceImpl petService,
                                  PetAvatarServiceImpl petAvatarService,
@@ -49,7 +56,8 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                                  InfoServiceImpl infoService,
                                  PetShelterTelegramConfig botConfig,
                                  VolunteerServiceImpl volunteerService,
-                                 SchedulerServiceImpl schedulerService) {
+                                 SchedulerServiceImpl schedulerService,
+                                 DailyReportServiceImpl dailyReportService) {
         this.petService = petService;
         this.petAvatarService = petAvatarService;
         this.clientService = clientService;
@@ -57,6 +65,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         this.botConfig = botConfig;
         this.volunteerService = volunteerService;
         this.schedulerService = schedulerService;
+        this.dailyReportService = dailyReportService;
         try {
             List<BotCommand> botCommands = new ArrayList<>(List.of(
                     new BotCommand("/start", "Информация о приюте"),
@@ -173,20 +182,18 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                     showData(chatId);
                 }
                 default -> {
-                    if (!registrationStatus.contains(chatId)) {
-                        sendMessage(chatId, "Я Вас не понимаю.\n\nПожалуйста, введите другую команду, воспользуйтесь Menu бота или свяжитесь с волонтёром.");
-                    } else {
-                        registration(chatId, message);
-                    }
+                    createAnswer(update);
                 }
             }
         } else if (update.hasCallbackQuery()) {
             String message = update.getCallbackQuery().getData();
             Long chatId = update.getCallbackQuery().getMessage().getChatId();
-            if (!message.equals("/close-registration")) {
+            if (!message.equals("/close-registration") && !message.equals("Отправить отчёт")) {
                 getPet(message, chatId);
-            } else {
+            } else if (message.equals("/close-registration")) {
                 registrationStop(chatId);
+            } else {
+                takeReport(chatId);
             }
         }
     }
@@ -538,11 +545,18 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         } else {
             passport = client.getPassport();
         }
-        sendMessage.setText("Имя: " + name + "\nФамилия: " + surname + "\nДата рождения: " + birthday + "\nАдрес: " + address + "\nПасспорт: " + passport);
+        sendMessage.setText("Имя: " + name + "\nФамилия: " + surname + "\nДата рождения: " + birthday + "\nАдрес: " + address + "\nПаспорт: " + passport);
         exec(sendMessage);
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    private void dailyReport(Long chatId, String message, byte[] photo) {
+        DailyReport dailyReport = new DailyReport(null, photo, message, Date.valueOf(LocalDate.now()), clientService.getByChatId(chatId).getId());
+        dailyReportService.saveReport(dailyReport);
+        dailyReportStatus.remove(chatId);
+        sendMessage(chatId, "Ежедневный отчёт успешно отправлен!");
+    }
+
+    @Scheduled(cron = "0/30 * * * * *")
     public void dailyForm() {
         schedulerService.updateProbation();
         List<ProbationPeriod> probations = schedulerService.getProbation();
@@ -553,6 +567,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setChatId(clientService.getById(probation.getClientId()).getChatId());
                 sendMessage.setText(infoService.getInfoTextById(17L));
+                sendMessage.setReplyMarkup(dailyReportMarkup());
                 exec(sendMessage);
             } else if (probation.getLastDate().equals(date)) {
                 SendMessage sendMessage = new SendMessage();
@@ -562,11 +577,47 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
             } else {
                 schedulerService.deleteProbation(probation.getId());
                 petService.delete(probation.getPetId());
+                dailyReportService.deleteReports(probation.getClientId());
                 Client client = clientService.getById(probation.getClientId());
                 if (client.getPets() == null) {
                     clientService.delete(probation.getClientId());
                 }
             }
+        }
+    }
+
+    private InlineKeyboardMarkup dailyReportMarkup() {
+        InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
+        var closeRegistrationButton = new InlineKeyboardButton();
+        closeRegistrationButton.setText("Отправить отчёт");
+        closeRegistrationButton.setCallbackData("Отправить отчёт");
+        rowInLine.add(closeRegistrationButton);
+        rowsInLine.add(rowInLine);
+        markupInLine.setKeyboard(rowsInLine);
+        return markupInLine;
+    }
+
+    private void takeReport(Long chatId) {
+        dailyReportStatus.add(chatId);
+        sendMessage(chatId, "Ожидаем Вашего отчёта!");
+    }
+
+    private void createAnswer(Update update) {
+        String message = update.getMessage().getText();
+        Long chatId = update.getMessage().getChatId();
+        if (!dailyReportStatus.contains(chatId)) {
+            if (!registrationStatus.contains(chatId)) {
+                sendMessage(chatId, "Я Вас не понимаю.\n\nПожалуйста, введите другую команду, воспользуйтесь Menu бота или свяжитесь с волонтёром.");
+            } else {
+                registration(chatId, message);
+            }
+        } else {
+            List<PhotoSize> photos = update.getMessage().getPhoto();
+            GetFile getFileRequest = new GetFile();
+            getFileRequest.setFileId(photos.get(0).getFileId());
+            dailyReport(chatId, message, null);
         }
     }
 }

@@ -4,16 +4,15 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sky.pro.Animals.entity.Client;
+import sky.pro.Animals.entity.DailyReport;
+import sky.pro.Animals.entity.DailyReportList;
 import sky.pro.Animals.entity.Pet;
-import sky.pro.Animals.listener.PetShelterTelegramBot;
-import sky.pro.Animals.service.ClientServiceImpl;
-import sky.pro.Animals.service.InfoServiceImpl;
-import sky.pro.Animals.service.PetServiceImpl;
-import sky.pro.Animals.service.ProbationPeriodServiceImpl;
+import sky.pro.Animals.service.*;
 
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 
 /**
@@ -30,15 +29,19 @@ public class ClientController {
     private final ClientServiceImpl clientService;
     private final InfoServiceImpl infoService;
     private final PetServiceImpl petService;
-    private final PetShelterTelegramBot telegramBot;
     private final ProbationPeriodServiceImpl probationPeriodService;
+    private final DailyReportServiceImpl dailyReportService;
 
-    public ClientController(ClientServiceImpl clientService, InfoServiceImpl infoService, PetServiceImpl petService, PetShelterTelegramBot telegramBot, ProbationPeriodServiceImpl probationPeriodService) {
+    public ClientController(ClientServiceImpl clientService,
+                            InfoServiceImpl infoService,
+                            PetServiceImpl petService,
+                            ProbationPeriodServiceImpl probationPeriodService,
+                            DailyReportServiceImpl dailyReportService) {
         this.clientService = clientService;
         this.infoService = infoService;
         this.petService = petService;
-        this.telegramBot = telegramBot;
         this.probationPeriodService = probationPeriodService;
+        this.dailyReportService = dailyReportService;
     }
 
     @GetMapping(path = "/get")
@@ -187,6 +190,34 @@ public class ClientController {
             return ResponseEntity.status(400).build();
         } else {
             return ResponseEntity.ok().body(editedClient);
+        }
+    }
+
+    @GetMapping(path = "/reports")
+    public ResponseEntity<Collection<DailyReportList>> getAll() {
+        Collection<DailyReportList> dailyReports = dailyReportService.getAll();
+        if (dailyReports == null) {
+            return ResponseEntity.status(400).build();
+        } else {
+            return ResponseEntity.ok().body(dailyReports);
+        }
+    }
+    @GetMapping(path = "/reports/{id}")
+    public ResponseEntity<HashMap<Long, Date>> getClientReports(@RequestParam @PathVariable Long id) {
+        HashMap<Long, Date> dailyReports = dailyReportService.getAllClientReports(id);
+        if (dailyReports == null) {
+            return ResponseEntity.status(400).build();
+        } else {
+            return ResponseEntity.ok().body(dailyReports);
+        }
+    }
+    @GetMapping(path = "/report/{id}")
+    public ResponseEntity<DailyReport> getClientReport(@RequestParam @PathVariable Long id) {
+        DailyReport dailyReport = dailyReportService.getReport(id);
+        if (dailyReport == null) {
+            return ResponseEntity.status(400).build();
+        } else {
+            return ResponseEntity.ok().body(dailyReport);
         }
     }
 }

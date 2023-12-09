@@ -76,7 +76,7 @@ public class PetAvatarServiceImpl implements PetAvatarService {
         return petAvatarRepository.findByPetId(id).orElse(new PetAvatar());
     }
 
-    private byte[] generateImagePreview(Path filePath) throws IOException {
+    public byte[] generateImagePreview(Path filePath) throws IOException {
         try (
                 InputStream is = Files.newInputStream(filePath);
                 BufferedInputStream bis = new BufferedInputStream(is, 1024);

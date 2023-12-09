@@ -1,5 +1,6 @@
 package sky.pro.Animals.service;
 
+import lombok.extern.log4j.Log4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,6 +20,7 @@ import java.util.NoSuchElementException;
  * Сервис для работы с данными клиентов
  */
 @Service
+@Log4j
 public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
 
@@ -58,7 +60,12 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Cacheable("client")
     public Client getById(Long id) {
-        return clientRepository.findById(id).get();
+        try {
+            return clientRepository.findById(id).get();
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+            return null;
+        }
     }
 
     /**
