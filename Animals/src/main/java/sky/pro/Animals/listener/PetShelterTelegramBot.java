@@ -25,9 +25,7 @@ import sky.pro.Animals.service.*;
 import java.io.File;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static sky.pro.Animals.model.PetVariety.cat;
 import static sky.pro.Animals.model.PetVariety.dog;
@@ -43,8 +41,15 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
     private final PetShelterTelegramConfig botConfig;
     private final VolunteerServiceImpl volunteerService;
     private final SchedulerServiceImpl schedulerService;
+    private final Set<Long> registrationStatus = new HashSet<>();
 
-    public PetShelterTelegramBot(PetServiceImpl petService, PetAvatarServiceImpl petAvatarService, ClientServiceImpl clientService, InfoServiceImpl infoService, PetShelterTelegramConfig botConfig, VolunteerServiceImpl volunteerService, SchedulerServiceImpl schedulerService) {
+    public PetShelterTelegramBot(PetServiceImpl petService,
+                                 PetAvatarServiceImpl petAvatarService,
+                                 ClientServiceImpl clientService,
+                                 InfoServiceImpl infoService,
+                                 PetShelterTelegramConfig botConfig,
+                                 VolunteerServiceImpl volunteerService,
+                                 SchedulerServiceImpl schedulerService) {
         this.petService = petService;
         this.petAvatarService = petAvatarService;
         this.clientService = clientService;
@@ -162,16 +167,27 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                     callVolunteer(chatId, userName);
                 }
                 case "Пройти регистрацию" -> {
-                    registration(chatId);
+                    registration(chatId, null);
+                }
+                case "Посмотреть свои данные" -> {
+                    showData(chatId);
                 }
                 default -> {
-                    sendMessage(chatId, "Я Вас не понимаю.\n\nПожалуйста, введите другую команду, воспользуйтесь Menu бота или свяжитесь с волонтёром.");
+                    if (!registrationStatus.contains(chatId)) {
+                        sendMessage(chatId, "Я Вас не понимаю.\n\nПожалуйста, введите другую команду, воспользуйтесь Menu бота или свяжитесь с волонтёром.");
+                    } else {
+                        registration(chatId, message);
+                    }
                 }
             }
         } else if (update.hasCallbackQuery()) {
             String message = update.getCallbackQuery().getData();
             Long chatId = update.getCallbackQuery().getMessage().getChatId();
-            getPet(message, chatId);
+            if (!message.equals("/close-registration")) {
+                getPet(message, chatId);
+            } else {
+                registrationStop(chatId);
+            }
         }
     }
 
@@ -190,6 +206,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         keyboardRows.add(keyboardRow);
         keyboardRow = new KeyboardRow();
         keyboardRow.add("Пройти регистрацию");
+        keyboardRow.add("Посмотреть свои данные");
         keyboardRows.add(keyboardRow);
         keyboardMarkup.setKeyboard(keyboardRows);
         keyboardMarkup.setResizeKeyboard(true);
@@ -345,14 +362,184 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void registration(Long chatId) {
+    private void registration(Long chatId, String text) {
         Client client = clientService.getByChatId(chatId);
-        if (client.getFirstName() != null && client.getBirthday() != null && client.getAddress() != null && client.getLastName() != null) {
+        if (client.getFirstName() != null
+                && client.getBirthday() != null
+                && client.getAddress() != null
+                && client.getLastName() != null
+                && client.getPassport() != null) {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(chatId);
             sendMessage.setText("Регистрация уже пройдена!\nДля изменения персональных данных, пожалуйста, свяжитесь с волонтёром!");
+            exec(sendMessage);
+        } else if (client.getFirstName() == null) {
+            if (text == null) {
+                registrationStatus.add(chatId);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Введите, пожалуйста, Ваше имя!");
+                InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                sendMessage.setReplyMarkup(markupInLine);
+                exec(sendMessage);
+            } else {
+                client.setFirstName(text);
+                clientService.save(client);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Введите, пожалуйста, Вашу фамилию!");
+                InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                sendMessage.setReplyMarkup(markupInLine);
+                exec(sendMessage);
+            }
+        } else if (client.getLastName() == null) {
+            if (text == null) {
+                registrationStatus.add(chatId);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Введите, пожалуйста, Вашу фамилию!");
+                InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                sendMessage.setReplyMarkup(markupInLine);
+                exec(sendMessage);
+            } else {
+                client.setLastName(text);
+                clientService.save(client);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Введите, пожалуйста, Ваш адрес!");
+                InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                sendMessage.setReplyMarkup(markupInLine);
+                exec(sendMessage);
+            }
+        } else if (client.getAddress() == null) {
+            if (text == null) {
+                registrationStatus.add(chatId);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Введите, пожалуйста, Ваш адрес!");
+                InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                sendMessage.setReplyMarkup(markupInLine);
+                exec(sendMessage);
+            } else {
+                client.setAddress(text);
+                clientService.save(client);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Введите, пожалуйста, Вашу  дату рождения!\n\nДата рождения вводится в формате: гггг-мм-дд");
+                InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                sendMessage.setReplyMarkup(markupInLine);
+                exec(sendMessage);
+            }
+        } else if (client.getBirthday() == null) {
+            if (text == null) {
+                registrationStatus.add(chatId);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Введите, пожалуйста, Вашу  дату рождения!\n\nДата рождения вводится в формате: гггг-мм-дд");
+                InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                sendMessage.setReplyMarkup(markupInLine);
+                exec(sendMessage);
+            } else {
+                try {
+                    client.setBirthday(Date.valueOf(text));
+                } catch (RuntimeException e) {
+                    log.error(e.getMessage());
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(chatId);
+                    sendMessage.setText("Неправильный ввод даты!");
+                    exec(sendMessage);
+                    sendMessage = new SendMessage();
+                    sendMessage.setChatId(chatId);
+                    sendMessage.setText("Введите, пожалуйста, Вашу  дату рождения!\n\nДата рождения вводится в формате: гггг-мм-дд");
+                    InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                    sendMessage.setReplyMarkup(markupInLine);
+                    exec(sendMessage);
+                }
+                clientService.save(client);
+                if (client.getBirthday() != null) {
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(chatId);
+                    sendMessage.setText("Введите, пожалуйста, Ваш паспорт!");
+                    InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                    sendMessage.setReplyMarkup(markupInLine);
+                    exec(sendMessage);
+                }
+            }
+        } else if (client.getPassport() == null) {
+            if (text == null) {
+                registrationStatus.add(chatId);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Введите, пожалуйста, Ваш паспорт!");
+                InlineKeyboardMarkup markupInLine = closeRegistrationMarkup();
+                sendMessage.setReplyMarkup(markupInLine);
+                exec(sendMessage);
+            } else {
+                client.setPassport(text);
+                clientService.save(client);
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setChatId(chatId);
+                sendMessage.setText("Регистрация пройдена!\nДля изменения персональных данных, пожалуйста, свяжитесь с волонтёром!");
+                exec(sendMessage);
+                registrationStatus.remove(chatId);
+            }
         }
+    }
 
+    private InlineKeyboardMarkup closeRegistrationMarkup() {
+        InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
+        var closeRegistrationButton = new InlineKeyboardButton();
+        closeRegistrationButton.setText("Прервать регистрацию");
+        closeRegistrationButton.setCallbackData("/close-registration");
+        rowInLine.add(closeRegistrationButton);
+        rowsInLine.add(rowInLine);
+        markupInLine.setKeyboard(rowsInLine);
+        return markupInLine;
+    }
+
+    private void registrationStop(Long chatId) {
+        registrationStatus.remove(chatId);
+        sendMessage(chatId, "Регистрация прервана!");
+    }
+
+    private void showData(Long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        Client client = clientService.getByChatId(chatId);
+        String name;
+        String surname;
+        String address;
+        Date birthday;
+        String passport;
+        if (client.getFirstName() == null) {
+            name = "Не введено";
+        } else {
+            name = client.getFirstName();
+        }
+        if (client.getLastName() == null) {
+            surname = "Не введено";
+        } else {
+            surname = client.getLastName();
+        }
+        if (client.getAddress() == null) {
+            address = "Не введено";
+        } else {
+            address = client.getAddress();
+        }
+        if (client.getBirthday() == null) {
+            birthday = Date.valueOf("1900-01-01");
+        } else {
+            birthday = client.getBirthday();
+        }
+        if (client.getPassport() == null) {
+            passport = "Не введено";
+        } else {
+            passport = client.getPassport();
+        }
+        sendMessage.setText("Имя: " + name + "\nФамилия: " + surname + "\nДата рождения: " + birthday + "\nАдрес: " + address + "\nПасспорт: " + passport);
+        exec(sendMessage);
     }
 
     @Scheduled(cron = "0 0 0 * * *")
