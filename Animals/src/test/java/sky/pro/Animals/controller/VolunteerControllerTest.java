@@ -33,7 +33,7 @@ class VolunteerControllerTest {
 
     @Test
     void crud() {
-        Volunteer volunteer = new Volunteer(14l, "FIO", "address", new Date(2000 - 11 - 11)
+        Volunteer volunteer = new Volunteer(1l, "FIO", "address", new Date(2000 - 11 - 11)
                 , "234432", 1111, "superMan");
 
         //        create post запрос
@@ -57,7 +57,7 @@ class VolunteerControllerTest {
 
 
         Assertions.assertThat(respBody.getFio()).isEqualTo("FIO");
-        Assertions.assertThat(respBody.getId()).isEqualTo(14l);
+        Assertions.assertThat(respBody.getId()).isEqualTo(1l);
 
         //read  get запрос
 //получить по id
@@ -107,10 +107,10 @@ class VolunteerControllerTest {
         Assertions.assertThat(respBody2.getWorkPosition()).isEqualTo("SuperAnimal");
 
 //delete запрос
-        testRestTemplate.delete("/volunteer/delete/" + 9);
+        testRestTemplate.delete("/volunteer/delete/" + respBody.getId());
 
 
-        ResponseEntity<Volunteer> responseGetForDelete = testRestTemplate.getForEntity("/volunteer/get/" + 9, Volunteer.class);
+        ResponseEntity<Volunteer> responseGetForDelete = testRestTemplate.getForEntity("/volunteer/get/" + respBody.getId(), Volunteer.class);
 
         Assertions.assertThat(responseGetForDelete).isNotNull();
         //в методе  getById статус прописан 400 но почему то выскакивает 500 ,потому данная проверка пока не актуальна
