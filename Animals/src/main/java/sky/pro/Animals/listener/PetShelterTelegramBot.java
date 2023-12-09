@@ -1,8 +1,10 @@
 package sky.pro.Animals.listener;
 
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,7 @@ import sky.pro.Animals.service.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Date;
@@ -103,6 +106,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         return botConfig.getToken();
     }
 
+    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
@@ -129,7 +133,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                     sendMessage(chatId, infoService.getInfoTextById(4L) + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
                 }
                 case "/driving_directions" -> {
-                    sendMessage(chatId, infoService.getInfoTextById(5L) + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
+                    sendMessage(chatId, new URI(infoService.getInfoTextById(5L)).toURL() + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
                 }
                 case "/car_pass" -> {
                     sendMessage(chatId, infoService.getInfoTextById(6L) + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
