@@ -40,8 +40,6 @@ import static sky.pro.Animals.model.PetVariety.dog;
 @Log4j
 @EnableScheduling
 public class PetShelterTelegramBot extends TelegramLongPollingBot {
-    @Value("${daily.report.dir.path}")
-    private String dailyReportDir;
     private final PetServiceImpl petService;
     private final PetAvatarServiceImpl petAvatarService;
     private final ClientServiceImpl clientService;
@@ -577,7 +575,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, "Ежедневный отчёт успешно отправлен!");
     }
 
-    @Scheduled(cron = "0/30 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void dailyForm() {
         schedulerService.updateProbation();
         List<ProbationPeriod> probations = schedulerService.getProbation();

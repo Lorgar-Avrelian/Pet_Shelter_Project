@@ -1,12 +1,16 @@
 package sky.pro.Animals.controller;
 
 import lombok.extern.log4j.Log4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import sky.pro.Animals.entity.Client;
 import sky.pro.Animals.entity.DailyReport;
 import sky.pro.Animals.entity.DailyReportList;
 import sky.pro.Animals.entity.Pet;
+import sky.pro.Animals.listener.PetShelterTelegramBot;
 import sky.pro.Animals.service.*;
 
 import java.sql.Date;
@@ -31,17 +35,20 @@ public class ClientController {
     private final PetServiceImpl petService;
     private final ProbationPeriodServiceImpl probationPeriodService;
     private final DailyReportServiceImpl dailyReportService;
+    private final PetShelterTelegramBot telegramBot;
 
     public ClientController(ClientServiceImpl clientService,
                             InfoServiceImpl infoService,
                             PetServiceImpl petService,
                             ProbationPeriodServiceImpl probationPeriodService,
-                            DailyReportServiceImpl dailyReportService) {
+                            DailyReportServiceImpl dailyReportService,
+                            PetShelterTelegramBot telegramBot) {
         this.clientService = clientService;
         this.infoService = infoService;
         this.petService = petService;
         this.probationPeriodService = probationPeriodService;
         this.dailyReportService = dailyReportService;
+        this.telegramBot = telegramBot;
     }
 
     @GetMapping(path = "/get")
@@ -202,6 +209,7 @@ public class ClientController {
             return ResponseEntity.ok().body(dailyReports);
         }
     }
+
     @GetMapping(path = "/reports/{id}")
     public ResponseEntity<HashMap<Long, Date>> getClientReports(@RequestParam @PathVariable Long id) {
         HashMap<Long, Date> dailyReports = dailyReportService.getAllClientReports(id);
@@ -211,13 +219,25 @@ public class ClientController {
             return ResponseEntity.ok().body(dailyReports);
         }
     }
+
     @GetMapping(path = "/report/{id}")
     public ResponseEntity<DailyReport> getClientReport(@RequestParam @PathVariable Long id) {
         DailyReport dailyReport = dailyReportService.getReport(id);
         if (dailyReport == null) {
             return ResponseEntity.status(400).build();
         } else {
-            return ResponseEntity.ok().body(dailyReport);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            return ResponseEntity.ok().headers(headers).body(dailyReport);
         }
+    }
+
+    @GetMapping(path = "/warning/{id}")
+    public ResponseEntity<Client> warning(@RequestParam @PathVariable Long id) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(clientService.getById(id).getChatId());
+        sendMessage.setText("Дорогой усыновитель, мы заметили, что ты заполняешь отчет не так подробно, как необходимо. \n\nПожалуйста, подойди ответственнее к этому занятию. В противном случае волонтеры приюта будут обязаны самолично проверять условия содержания животного.");
+        telegramBot.exec(sendMessage);
+        return ResponseEntity.ok().build();
     }
 }
