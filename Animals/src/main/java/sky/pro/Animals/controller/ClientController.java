@@ -226,6 +226,8 @@ public class ClientController {
         if (dailyReport == null) {
             return ResponseEntity.status(400).build();
         } else {
+            dailyReport.setBrows(true);
+            dailyReportService.saveReport(dailyReport);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             return ResponseEntity.ok().headers(headers).body(dailyReport);
