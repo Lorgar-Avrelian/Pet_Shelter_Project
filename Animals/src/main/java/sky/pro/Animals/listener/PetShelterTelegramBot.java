@@ -200,7 +200,6 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
             Long chatId = update.getMessage().getChatId();
             String message = update.getMessage().getText();
             List<PhotoSize> photos = update.getMessage().getPhoto();
-            System.out.println(photos);
             GetFile getFile = new GetFile(photos.get(photos.size() - 1).getFileId());
             try {
                 org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
@@ -210,7 +209,9 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
             }
             try {
                 byte[] photoInBytes = Files.readAllBytes(Path.of("photos/photo" + (photos.size() - 1) + ".png"));
-                dailyReport(chatId, message, photoInBytes);
+                if (dailyReportStatus.contains(chatId)) {
+                    dailyReport(chatId, message, photoInBytes);
+                }
             } catch (IOException e) {
                 log.error(e.getMessage());
             }
@@ -569,13 +570,13 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
     }
 
     private void dailyReport(Long chatId, String message, byte[] photo) {
-        DailyReport dailyReport = new DailyReport(null, photo, message, Date.valueOf(LocalDate.now()), clientService.getByChatId(chatId).getId());
+        DailyReport dailyReport = new DailyReport(null, photo, message, Date.valueOf(LocalDate.now()), clientService.getByChatId(chatId).getId(), false);
         dailyReportService.saveReport(dailyReport);
         dailyReportStatus.remove(chatId);
         sendMessage(chatId, "Ежедневный отчёт успешно отправлен!");
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void dailyForm() {
         schedulerService.updateProbation();
         List<ProbationPeriod> probations = schedulerService.getProbation();
