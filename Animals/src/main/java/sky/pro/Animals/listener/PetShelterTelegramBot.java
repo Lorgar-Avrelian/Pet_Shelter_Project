@@ -576,7 +576,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, "Ежедневный отчёт успешно отправлен!");
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void dailyForm() {
         schedulerService.updateProbation();
         List<ProbationPeriod> probations = schedulerService.getProbation();
