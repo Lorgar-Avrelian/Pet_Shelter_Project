@@ -1,11 +1,15 @@
 package sky.pro.Animals.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Client;
 import sky.pro.Animals.repository.ClientRepository;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /**
  * Service for working with clients data
@@ -34,6 +38,7 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findAll()
      */
     @Override
+    @Cacheable("client")
     public Collection<Client> getAll() {
         return clientRepository.findAll();
     }
@@ -51,6 +56,7 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @Cacheable("client")
     public Client getById(Long id) {
         return clientRepository.findById(id).get();
     }
@@ -68,6 +74,7 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#save(Object)
      */
     @Override
+    @CachePut(value = "client", key = "#client.id")
     public Client save(Client client) {
         return clientRepository.save(client);
     }
@@ -88,14 +95,30 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @CacheEvict("client")
     public Client delete(Long id) {
         Client client = clientRepository.getById(id);
         clientRepository.delete(client);
         return client;
     }
 
+    /**
+     * Method for searching client with this chatId from DB. <br>
+     * Used repository method {@link ClientRepository#findByChatId(Long)} <br>
+     * <hr>
+     * Метод для поиска в БД клиента с данным chatId. <br>
+     * Используется метод репозитория {@link ClientRepository#findByChatId(Long)} <br>
+     * <hr>
+     *
+     * @param chatId
+     * @return Client or null / Клиента или null
+     */
     @Override
     public Client getByChatId(Long chatId) {
-        return clientRepository.findByChatId(chatId).get();
+        try {
+            return clientRepository.findByChatId(chatId).get();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 }

@@ -1,5 +1,7 @@
 package sky.pro.Animals.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.Collection;
@@ -33,7 +35,6 @@ public class Client {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
-
         this.address = address;
         this.birthday = birthday;
         this.passport = passport;
@@ -73,7 +74,6 @@ public class Client {
         this.userName = userName;
     }
 
-
     public String getAddress() {
         return address;
     }
@@ -106,6 +106,7 @@ public class Client {
         this.chatId = chatId;
     }
 
+    @JsonManagedReference
     public Collection<Pet> getPets() {
         return pets;
     }
@@ -121,7 +122,6 @@ public class Client {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", userName='" + userName + '\'' +
-
                 ", address='" + address + '\'' +
                 ", birthday=" + birthday +
                 ", passport='" + passport + '\'' +

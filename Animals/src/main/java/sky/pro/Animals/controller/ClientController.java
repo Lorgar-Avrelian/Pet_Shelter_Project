@@ -69,18 +69,30 @@ public class ClientController {
     ) {
         infoService.checkInfo();
         Collection<Pet> clientPets = new ArrayList<>();
-        if (firstPetId == null || petService.getById(firstPetId) == null) {
+        if (firstPetId == null) {
             clientPets = null;
         } else {
-            clientPets.add(petService.getById(firstPetId));
+            if (petService.getById(firstPetId) != null) {
+                clientPets.add(petService.getById(firstPetId));
+            }
         }
-        if (secondPetId != null || petService.getById(secondPetId) != null) {
-            clientPets.add(petService.getById(secondPetId));
+        if (secondPetId != null) {
+            if (petService.getById(secondPetId) != null) {
+                clientPets.add(petService.getById(secondPetId));
+            }
         }
-        if (thirdPetId != null || petService.getById(thirdPetId) != null) {
-            clientPets.add(petService.getById(thirdPetId));
+        if (thirdPetId != null) {
+            if (petService.getById(thirdPetId) != null) {
+                clientPets.add(petService.getById(thirdPetId));
+            }
         }
         Client client = new Client(id, firstName, lastName, userName, address, birthday, passport, chatId, clientPets);
+        if (clientPets != null) {
+            for (Pet pet : clientPets) {
+                pet.setClient(client);
+                petService.save(pet);
+            }
+        }
         Client savedClient = clientService.save(client);
         if (savedClient == null) {
             return ResponseEntity.status(400).build();
@@ -102,18 +114,30 @@ public class ClientController {
                                              @RequestParam(required = false) Long secondPetId,
                                              @RequestParam(required = false) Long thirdPetId) {
         Collection<Pet> clientPets = new ArrayList<>();
-        if (firstPetId == null || petService.getById(firstPetId) == null) {
+        if (firstPetId == null) {
             clientPets = null;
         } else {
-            clientPets.add(petService.getById(firstPetId));
+            if (petService.getById(firstPetId) != null) {
+                clientPets.add(petService.getById(firstPetId));
+            }
         }
-        if (secondPetId != null || petService.getById(secondPetId) != null) {
-            clientPets.add(petService.getById(secondPetId));
+        if (secondPetId != null) {
+            if (petService.getById(secondPetId) != null) {
+                clientPets.add(petService.getById(secondPetId));
+            }
         }
-        if (thirdPetId != null || petService.getById(thirdPetId) != null) {
-            clientPets.add(petService.getById(thirdPetId));
+        if (thirdPetId != null) {
+            if (petService.getById(thirdPetId) != null) {
+                clientPets.add(petService.getById(thirdPetId));
+            }
         }
         Client client = new Client(id, firstName, lastName, userName, address, birthday, passport, chatId, clientPets);
+        if (clientPets != null) {
+            for (Pet pet : clientPets) {
+                pet.setClient(client);
+                petService.save(pet);
+            }
+        }
         Client editedClient = clientService.save(client);
         if (editedClient == null) {
             return ResponseEntity.status(400).build();
@@ -124,6 +148,11 @@ public class ClientController {
 
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Client> deleteClient(@PathVariable Long id) {
+        Collection<Pet> clientPets = clientService.getById(id).getPets();
+        for (Pet pet : clientPets) {
+            pet.setClient(null);
+            petService.save(pet);
+        }
         Client deletedClient = clientService.delete(id);
         if (deletedClient == null) {
             return ResponseEntity.status(400).build();

@@ -1,5 +1,9 @@
 package sky.pro.Animals.service;
 
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Pet;
@@ -36,6 +40,7 @@ public class PetServiceImpl implements PetService {
      * @see JpaRepository#findAll()
      */
     @Override
+    @Cacheable("pet")
     public Collection<Pet> getAll() {
         return petRepository.findAll();
     }
@@ -53,6 +58,7 @@ public class PetServiceImpl implements PetService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @Cacheable("pet")
     public Pet getById(Long id) {
         return petRepository.findById(id).get();
     }
@@ -71,6 +77,7 @@ public class PetServiceImpl implements PetService {
      * @see JpaRepository#save(Object)
      */
     @Override
+    @CachePut(value = "pet", key = "#pet.id")
     public Pet save(Pet pet) {
         return petRepository.save(pet);
     }
@@ -91,6 +98,7 @@ public class PetServiceImpl implements PetService {
      * @see JpaRepository#findById(Object)
      */
     @Override
+    @CacheEvict("pet")
     public Pet delete(Long id) {
         Pet pet = petRepository.getById(id);
         petRepository.delete(pet);
@@ -107,12 +115,8 @@ public class PetServiceImpl implements PetService {
      * @return string with a list of animals / строку со списком животных
      */
     @Override
-    public String getPetListByVariety(PetVariety petVariety) {
-        List<Pet> sortedPetList = petRepository.findAllByPetVariety(petVariety);
-        String answer = null;
-        for (Pet pet : sortedPetList) {
-            answer += pet.getId() + " " + pet.getName() + " " + pet.getBirthday() + " <br>";
-        }
-        return answer;
+//    @Cacheable("variety")
+    public List<Pet> getPetListByVariety(PetVariety petVariety) {
+        return petRepository.findAllByPetVariety(petVariety);
     }
 }

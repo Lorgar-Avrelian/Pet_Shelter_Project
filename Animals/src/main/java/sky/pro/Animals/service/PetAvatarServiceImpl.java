@@ -1,8 +1,9 @@
 package sky.pro.Animals.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sky.pro.Animals.entity.Pet;
@@ -20,13 +21,13 @@ import java.nio.file.Path;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
+@Log4j
 @Transactional
 public class PetAvatarServiceImpl implements PetAvatarService {
     @Value("${pet.avatar.dir.path}")
     private String petAvatarsDir;
     private final PetServiceImpl petService;
     private final PetAvatarRepository petAvatarRepository;
-    private final Logger logger = LoggerFactory.getLogger(PetAvatarServiceImpl.class);
 
     public PetAvatarServiceImpl(PetServiceImpl petService, PetAvatarRepository petAvatarRepository) {
         this.petService = petService;
@@ -34,22 +35,22 @@ public class PetAvatarServiceImpl implements PetAvatarService {
     }
 
     @Override
+    @Cacheable("avatar")
     public PetAvatar findAvatar(Long id) {
-        logger.info("Searching avatar by id {}", id);
+        log.info("Searching avatar by id " + id);
         PetAvatar answer = petAvatarRepository.findById(id).get();
-        logger.debug("Getting answer {}", answer);
+        log.debug("Getting answer " + answer);
         return answer;
     }
 
     @Override
+    @CachePut(value = "avatar", key = "#avatar.id")
     public void uploadAvatar(Long id, MultipartFile file) throws IOException {
-        logger.info("Trying to upload avatar for student with id {}", id);
+        log.info("Trying to upload avatar for student with id " + id);
         Pet pet = petService.getById(id);
-
         Path filePath = Path.of(petAvatarsDir, id + "." + getExtension(file.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
-
         try (
                 InputStream is = file.getInputStream();
                 OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
@@ -58,14 +59,12 @@ public class PetAvatarServiceImpl implements PetAvatarService {
         ) {
             bis.transferTo(bos);
         }
-
         PetAvatar petAvatar = getPetAvatar(id);
         petAvatar.setPet(pet);
         petAvatar.setFilePath(filePath.toString());
         petAvatar.setFileSize(file.getSize());
         petAvatar.setMediaType(file.getContentType());
         petAvatar.setData(generateImagePreview(filePath));
-
         petAvatarRepository.save(petAvatar);
     }
 
@@ -73,7 +72,7 @@ public class PetAvatarServiceImpl implements PetAvatarService {
         return filename.substring(filename.lastIndexOf(".") + 1);
     }
 
-    private PetAvatar getPetAvatar(Long id) {
+    public PetAvatar getPetAvatar(Long id) {
         return petAvatarRepository.findByPetId(id).orElse(new PetAvatar());
     }
 
@@ -84,8 +83,16 @@ public class PetAvatarServiceImpl implements PetAvatarService {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream()
         ) {
             BufferedImage image = ImageIO.read(bis);
-            int height = image.getHeight() / (image.getWidth() / 100);
-            BufferedImage preview = new BufferedImage(100, height, image.getType());
+            int height = 0;
+            int width = 0;
+            BufferedImage preview = null;
+            if (image.getHeight() > image.getWidth()) {
+                height = image.getHeight() / (image.getWidth() / 100);
+                preview = new BufferedImage(100, height, image.getType());
+            } else {
+                width = image.getWidth() / (image.getHeight() / 100);
+                preview = new BufferedImage(width, 100, image.getType());
+            }
             Graphics2D graphics = preview.createGraphics();
             graphics.drawImage(image, 0, 0, 100, height, null);
             graphics.dispose();
