@@ -55,6 +55,7 @@ public class InfoController {
     public ResponseEntity<String> editInfo(@RequestParam Long id, @RequestParam String editedText) {
         Info info = infoService.getById(id);
         info.setText(editedText);
+        infoService.editInfo(info);
         String result = infoService.editInfo(info);
         if (result == null) {
             return ResponseEntity.status(400).build();
