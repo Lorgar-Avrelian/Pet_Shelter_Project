@@ -5,9 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import sky.pro.Animals.entity.Client;
 import sky.pro.Animals.entity.Pet;
 import sky.pro.Animals.model.PetVariety;
-import sky.pro.Animals.service.ClientServiceImpl;
-import sky.pro.Animals.service.InfoServiceImpl;
-import sky.pro.Animals.service.PetServiceImpl;
+import sky.pro.Animals.service.*;
 
 import java.sql.Date;
 import java.util.Collection;
@@ -34,6 +32,17 @@ public class PetController {
         this.clientService = clientService;
     }
 
+    /**
+     * API for getting collection with all pets in pet shelter. <br>
+     * Used service method {@link PetService#getAll()}. <br>
+     * <hr>
+     * API для получения коллекции со всеми питомцами приюта. <br>
+     * Использован метод сервиса {@link PetService#getAll()}. <br>
+     * <hr>
+     *
+     * @return Collection with all pets / Коллекцию со всеми питомцами
+     * @see PetService#getAll()
+     */
     @GetMapping(path = "/get")
     public ResponseEntity<Collection<Pet>> getAllPets() {
         infoService.checkInfo();
@@ -45,6 +54,18 @@ public class PetController {
         }
     }
 
+    /**
+     * API for getting info about pet with this id. <br>
+     * Used service method {@link PetService#getById(Long)}. <br>
+     * <hr>
+     * API для получения информации о питомце с данным id. <br>
+     * Использован метод сервиса {@link PetService#getById(Long)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @return Pet if exist / Питомца, если таковой есть
+     * @see PetService#getById(Long)
+     */
     @GetMapping(path = "/get/{id}")
     public ResponseEntity<Pet> getPet(@PathVariable Long id) {
         infoService.checkInfo();
@@ -56,6 +77,24 @@ public class PetController {
         }
     }
 
+    /**
+     * API for saving pet with this params. <br>
+     * Used service methods {@link ClientService#save(Client)} {@link PetService#save(Pet)}. <br>
+     * <hr>
+     * API для сохранения питомца с данными параметрами. <br>
+     * Использованы методы сервисов {@link ClientService#save(Client)} {@link PetService#save(Pet)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @param name
+     * @param birthday
+     * @param alive
+     * @param petVariety
+     * @param clientId
+     * @return Saved pet / Сохранённого питомца
+     * @see ClientService#save(Client)
+     * @see PetService#save(Pet)
+     */
     @PostMapping(path = "/write")
     public ResponseEntity<Pet> writePet(@RequestParam Long id,
                                         @RequestParam String name,
@@ -73,10 +112,13 @@ public class PetController {
             client = clientService.getById(clientId);
         }
         Pet pet = new Pet(id, name, birthday, alive, petVariety, client);
-        Collection<Pet> clientPets = clientService.getById(clientId).getPets();
-        clientPets.add(pet);
-        client.setPets(clientPets);
-        clientService.save(client);
+        Collection<Pet> clientPets;
+        if (client != null) {
+            clientPets = clientService.getById(clientId).getPets();
+            clientPets.add(pet);
+            client.setPets(clientPets);
+            clientService.save(client);
+        }
         Pet savedPet = petService.save(pet);
         if (savedPet == null) {
             return ResponseEntity.status(400).build();
@@ -85,6 +127,24 @@ public class PetController {
         }
     }
 
+    /**
+     * API for editing pet with this params. <br>
+     * Used service methods {@link ClientService#save(Client)} {@link PetService#save(Pet)}. <br>
+     * <hr>
+     * API для редактирования питомца с данными параметрами. <br>
+     * Использованы методы сервисов {@link ClientService#save(Client)} {@link PetService#save(Pet)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @param name
+     * @param birthday
+     * @param alive
+     * @param petVariety
+     * @param clientId
+     * @return Edited pet / Отредактированного питомца
+     * @see ClientService#save(Client)
+     * @see PetService#save(Pet)
+     */
     @PutMapping(path = "/edit")
     public ResponseEntity<Pet> editPet(@RequestParam Long id,
                                        @RequestParam String name,
@@ -102,10 +162,13 @@ public class PetController {
             client = clientService.getById(clientId);
         }
         Pet pet = new Pet(id, name, birthday, alive, petVariety, client);
-        Collection<Pet> clientPets = clientService.getById(clientId).getPets();
-        clientPets.add(pet);
-        client.setPets(clientPets);
-        clientService.save(client);
+        Collection<Pet> clientPets;
+        if (client != null) {
+            clientPets = clientService.getById(clientId).getPets();
+            clientPets.add(pet);
+            client.setPets(clientPets);
+            clientService.save(client);
+        }
         Pet editedPet = petService.save(pet);
         if (editedPet == null) {
             return ResponseEntity.status(400).build();
@@ -114,6 +177,19 @@ public class PetController {
         }
     }
 
+    /**
+     * API for deleting pet with this id. <br>
+     * Used service methods {@link ClientService#save(Client)} {@link PetService#delete(Long)}. <br>
+     * <hr>
+     * API для удаления питомца с данным id. <br>
+     * Использованы методы сервисов {@link ClientService#save(Client)} {@link PetService#delete(Long)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @return Deleted pet / Удалённого питомца
+     * @see ClientService#save(Client)
+     * @see PetService#delete(Long)
+     */
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Pet> deletePet(@PathVariable Long id) {
         infoService.checkInfo();

@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sky.pro.Animals.entity.Volunteer;
 import sky.pro.Animals.service.InfoServiceImpl;
+import sky.pro.Animals.service.VolunteerService;
 import sky.pro.Animals.service.VolunteerServiceImpl;
 
 import java.sql.Date;
@@ -27,6 +28,17 @@ public class VolunteerController {
         this.infoService = infoService;
     }
 
+    /**
+     * API for getting collection with all volunteers. <br>
+     * Used service method {@link VolunteerService#getAll()}. <br>
+     * <hr>
+     * API для получения коллекции со всеми волонтёрами. <br>
+     * Использован метод сервиса {@link VolunteerService#getAll()}. <br>
+     * <hr>
+     *
+     * @return Collection with all volunteers / Коллекция со всеми волонтёрами
+     * @see VolunteerService#getAll()
+     */
     @GetMapping(path = "/get")
     public ResponseEntity<Collection<Volunteer>> getAllVolunteers() {
         infoService.checkInfo();
@@ -38,6 +50,18 @@ public class VolunteerController {
         }
     }
 
+    /**
+     * API for getting volunteer with this id. <br>
+     * Used service method {@link VolunteerService#getById(Long)}. <br>
+     * <hr>
+     * API для получения волонтёра с данным id. <br>
+     * Использован метод сервиса {@link VolunteerService#getById(Long)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @return Volunteer if exist / Волонтёра, если таковой существует
+     * @see VolunteerService#getById(Long)
+     */
     @GetMapping(path = "/get/{id}")
     public ResponseEntity<Volunteer> getVolunteer(@PathVariable Long id) {
         infoService.checkInfo();
@@ -49,6 +73,24 @@ public class VolunteerController {
         }
     }
 
+    /**
+     * API for saving volunteer with this params. <br>
+     * Used service method {@link VolunteerService#save(Volunteer)}. <br>
+     * <hr>
+     * API для сохранения волонтёра с данными параметрами. <br>
+     * Использован метод сервиса {@link VolunteerService#save(Volunteer)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @param fio
+     * @param address
+     * @param birthday
+     * @param passport
+     * @param chatId
+     * @param workPosition
+     * @return Saved volunteer / Сохранённый волонтёр
+     * @see VolunteerService#save(Volunteer)
+     */
     @PostMapping(path = "/write")
     public ResponseEntity<Volunteer> writeVolunteer(@RequestParam Long id,
                                                     @RequestParam String fio,
@@ -67,6 +109,24 @@ public class VolunteerController {
         }
     }
 
+    /**
+     * API for editing volunteer with this params. <br>
+     * Used service method {@link VolunteerService#save(Volunteer)}. <br>
+     * <hr>
+     * API для редактирования волонтёра с данными параметрами. <br>
+     * Использован метод сервиса {@link VolunteerService#save(Volunteer)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @param fio
+     * @param address
+     * @param birthday
+     * @param passport
+     * @param chatId
+     * @param workPosition
+     * @return Edited volunteer / Отредактированный волонтёр
+     * @see VolunteerService#save(Volunteer)
+     */
     @PutMapping(path = "/edit")
     public ResponseEntity<Volunteer> editVolunteer(@RequestParam Long id,
                                                    @RequestParam String fio,
@@ -85,6 +145,18 @@ public class VolunteerController {
         }
     }
 
+    /**
+     * API for deleting volunteer with this id. <br>
+     * Used service method {@link VolunteerService#delete(Long)}. <br>
+     * <hr>
+     * API для удаления волонтёра с данным id. <br>
+     * Использован метод сервиса {@link VolunteerService#delete(Long)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @return Deleted volunteer / Удалённый волонтёр
+     * @see VolunteerService#delete(Long)
+     */
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Volunteer> deleteVolunteer(@PathVariable Long id) {
         infoService.checkInfo();

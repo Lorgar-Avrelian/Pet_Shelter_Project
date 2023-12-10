@@ -1,5 +1,6 @@
 package sky.pro.Animals.controller;
 
+import lombok.extern.log4j.Log4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @RestController
+@Log4j
 @RequestMapping(path = "/pet-avatar")
 public class PetAvatarController {
     private final PetAvatarServiceImpl petAvatarService;
@@ -23,6 +25,20 @@ public class PetAvatarController {
     public PetAvatarController(PetAvatarServiceImpl petAvatarService) {
         this.petAvatarService = petAvatarService;
     }
+
+    /**
+     * API for getting avatar of pet with this id. <br>
+     * Used service method {@link sky.pro.Animals.service.PetAvatarService#findAvatar(Long)}. <br>
+     * <hr>
+     * API для получения аватара питомца с данным id. <br>
+     * Использован метод сервиса {@link sky.pro.Animals.service.PetAvatarService#findAvatar(Long)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @param response
+     * @throws IOException
+     * @see sky.pro.Animals.service.PetAvatarService#findAvatar(Long)
+     */
     @GetMapping(path = "/{id}")
     public void downloadAvatar(@PathVariable Long id, HttpServletResponse response) throws IOException {
         PetAvatar petAvatar = petAvatarService.findAvatar(id);
@@ -37,6 +53,18 @@ public class PetAvatarController {
         }
     }
 
+    /**
+     * API for getting preview of avatar of pet with this id. <br>
+     * Used service method {@link sky.pro.Animals.service.PetAvatarService#findAvatar(Long)}. <br>
+     * <hr>
+     * API для получения превью аватара питомца с данным id. <br>
+     * Использован метод сервиса {@link sky.pro.Animals.service.PetAvatarService#findAvatar(Long)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @return Avatar preview / Превью аватара
+     * @see sky.pro.Animals.service.PetAvatarService#findAvatar(Long)
+     */
     @GetMapping(path = "{id}/preview")
     public ResponseEntity<byte[]> downloadAvatarPreview(@PathVariable Long id) {
         PetAvatar petAvatar = petAvatarService.findAvatar(id);
@@ -46,12 +74,30 @@ public class PetAvatarController {
         return ResponseEntity.ok().headers(headers).body(petAvatar.getData());
     }
 
+    /**
+     * API for loading avatar of pet with this id. <br>
+     * Used service method {@link sky.pro.Animals.service.PetAvatarService#uploadAvatar(Long, MultipartFile)}. <br>
+     * <hr>
+     * API для загрузки автара питомца с данным id. <br>
+     * Использован метод сервиса {@link sky.pro.Animals.service.PetAvatarService#uploadAvatar(Long, MultipartFile)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @param avatar
+     * @return ResponseEntity status of upload / ResponseEntity статус загрузки
+     * @throws IOException
+     * @see sky.pro.Animals.service.PetAvatarService#uploadAvatar(Long, MultipartFile)
+     */
     @PostMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadAvatar(@PathVariable Long id, @RequestParam MultipartFile avatar) throws IOException {
+    public ResponseEntity uploadAvatar(@RequestParam @PathVariable Long id, @RequestParam MultipartFile avatar) throws IOException {
         if (avatar.getSize() >= 1024 * 500) {
             return ResponseEntity.status(400).body("File is too big!");
         }
-        petAvatarService.uploadAvatar(id, avatar);
+        try {
+            petAvatarService.uploadAvatar(id, avatar);
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+        }
         return ResponseEntity.ok().build();
     }
 }

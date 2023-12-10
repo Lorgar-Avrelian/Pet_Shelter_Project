@@ -1,5 +1,6 @@
 package sky.pro.Animals.listener;
 
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,10 @@ import sky.pro.Animals.entity.*;
 import sky.pro.Animals.service.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
@@ -33,12 +38,19 @@ import java.util.*;
 import static sky.pro.Animals.model.PetVariety.cat;
 import static sky.pro.Animals.model.PetVariety.dog;
 
+/**
+ * Main class of telegram bot
+ * <p>
+ * <hr>
+ * <p>
+ * Основной класс телеграм бота
+ */
 @Component
 @Log4j
 @EnableScheduling
 public class PetShelterTelegramBot extends TelegramLongPollingBot {
     @Value("${daily.report.dir.path}")
-    private String dailyReportDir;
+    String reportPath;
     private final PetServiceImpl petService;
     private final PetAvatarServiceImpl petAvatarService;
     private final ClientServiceImpl clientService;
@@ -102,6 +114,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         return botConfig.getToken();
     }
 
+    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
@@ -194,6 +207,25 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 registrationStop(chatId);
             } else {
                 takeReport(chatId);
+            }
+        } else if (update.hasMessage() && update.getMessage().hasPhoto()) {
+            Long chatId = update.getMessage().getChatId();
+            String message = update.getMessage().getCaption();
+            List<PhotoSize> photos = update.getMessage().getPhoto();
+            GetFile getFile = new GetFile(photos.get(photos.size() - 1).getFileId());
+            try {
+                org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
+                downloadFile(file, new java.io.File(reportPath + (photos.size() - 1) + ".png"));
+            } catch (TelegramApiException e) {
+                log.error(e.getMessage());
+            }
+            try {
+                byte[] photoInBytes = Files.readAllBytes(Path.of(reportPath + (photos.size() - 1) + ".png"));
+                if (dailyReportStatus.contains(chatId)) {
+                    dailyReport(chatId, message, photoInBytes);
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage());
             }
         }
     }
@@ -550,13 +582,13 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
     }
 
     private void dailyReport(Long chatId, String message, byte[] photo) {
-        DailyReport dailyReport = new DailyReport(null, photo, message, Date.valueOf(LocalDate.now()), clientService.getByChatId(chatId).getId());
+        DailyReport dailyReport = new DailyReport(null, photo, message, Date.valueOf(LocalDate.now()), clientService.getByChatId(chatId).getId(), false);
         dailyReportService.saveReport(dailyReport);
         dailyReportStatus.remove(chatId);
         sendMessage(chatId, "Ежедневный отчёт успешно отправлен!");
     }
 
-    @Scheduled(cron = "0/30 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void dailyForm() {
         schedulerService.updateProbation();
         List<ProbationPeriod> probations = schedulerService.getProbation();
@@ -601,7 +633,10 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
 
     private void takeReport(Long chatId) {
         dailyReportStatus.add(chatId);
-        sendMessage(chatId, "Ожидаем Вашего отчёта!");
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText("Ожидаем Вашего отчёта!");
+        exec(sendMessage);
     }
 
     private void createAnswer(Update update) {
@@ -614,9 +649,6 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 registration(chatId, message);
             }
         } else {
-            List<PhotoSize> photos = update.getMessage().getPhoto();
-            GetFile getFileRequest = new GetFile();
-            getFileRequest.setFileId(photos.get(0).getFileId());
             dailyReport(chatId, message, null);
         }
     }

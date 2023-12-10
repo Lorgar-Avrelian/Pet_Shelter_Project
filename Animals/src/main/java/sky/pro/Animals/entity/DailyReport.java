@@ -21,16 +21,18 @@ public class DailyReport {
     private String text;
     private Date date;
     private Long clientId;
+    private boolean brows;
 
     public DailyReport() {
     }
 
-    public DailyReport(Long id, byte[] photo, String text, Date date, Long clientId) {
+    public DailyReport(Long id, byte[] photo, String text, Date date, Long clientId, boolean brows) {
         this.id = id;
         this.photo = photo;
         this.text = text;
         this.date = date;
         this.clientId = clientId;
+        this.brows = brows;
     }
 
     public Long getId() {
@@ -73,6 +75,14 @@ public class DailyReport {
         this.clientId = clientId;
     }
 
+    public boolean isBrows() {
+        return brows;
+    }
+
+    public void setBrows(boolean brows) {
+        this.brows = brows;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -94,6 +104,7 @@ public class DailyReport {
                 ", text='" + text + '\'' +
                 ", date=" + date +
                 ", clientId=" + clientId +
+                ", brows=" + brows +
                 '}';
     }
 }
