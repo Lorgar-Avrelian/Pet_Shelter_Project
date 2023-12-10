@@ -20,6 +20,13 @@ import java.nio.file.Path;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
+/**
+ * Service for working with pets avatars
+ * <p>
+ * <hr>
+ * <p>
+ * Сервис для работы с аватарками питомцев
+ */
 @Service
 @Log4j
 @Transactional
@@ -34,6 +41,18 @@ public class PetAvatarServiceImpl implements PetAvatarService {
         this.petAvatarRepository = petAvatarRepository;
     }
 
+    /**
+     * Method for getting pet avatar by id. <br>
+     * Used repository method {@link PetAvatarRepository#findById(Object)}. <br>
+     * <hr>
+     * Метод для получения аватара питомца по id. <br>
+     * Использован метод репозитория {@link PetAvatarRepository#findById(Object)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @return Pet avatar / Аватар питомца
+     * @see PetAvatarRepository#findById(Object)
+     */
     @Override
     @Cacheable("avatar")
     public PetAvatar findAvatar(Long id) {
@@ -43,6 +62,18 @@ public class PetAvatarServiceImpl implements PetAvatarService {
         return answer;
     }
 
+    /**
+     * Method for saving pet avatar in DB. <br>
+     * Used repository method {@link PetAvatarRepository#save(Object)}. <br>
+     * <hr>
+     * Метод для сохранения аватара питомца в БД. <br>
+     * Использован метод репозитория {@link PetAvatarRepository#save(Object)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @param file
+     * @throws IOException
+     */
     @Override
     @CachePut(value = "avatar", key = "#avatar.id")
     public void uploadAvatar(Long id, MultipartFile file) throws IOException {
@@ -68,14 +99,45 @@ public class PetAvatarServiceImpl implements PetAvatarService {
         petAvatarRepository.save(petAvatar);
     }
 
+    /**
+     * Method for getting image extension. <br>
+     * <hr>
+     * Метод для получения расширения изображения. <br>
+     * <hr>
+     *
+     * @param filename
+     * @return Image extension / Расширение изображения
+     */
     private String getExtension(String filename) {
         return filename.substring(filename.lastIndexOf(".") + 1);
     }
 
+    /**
+     * Method for getting pet avatar by pet id. <br>
+     * Used repository method {@link PetAvatarRepository#findByPetId(Long)}. <br>
+     * <hr>
+     * Метод для получения аватара питомца по его собственному id. <br>
+     * Использован метод репозитория {@link PetAvatarRepository#findByPetId(Long)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @return Pet avatar / Аватар питомца
+     * @see PetAvatarRepository#findByPetId(Long)
+     */
     public PetAvatar getPetAvatar(Long id) {
         return petAvatarRepository.findByPetId(id).orElse(new PetAvatar());
     }
 
+    /**
+     * Method for generation pet avatar preview. <br>
+     * <hr>
+     * Метод для генерации превью аватара питомца. <br>
+     * <hr>
+     *
+     * @param filePath
+     * @return Pet avatar in byte[] / Аватар питомца в виде byte[]
+     * @throws IOException
+     */
     public byte[] generateImagePreview(Path filePath) throws IOException {
         try (
                 InputStream is = Files.newInputStream(filePath);
