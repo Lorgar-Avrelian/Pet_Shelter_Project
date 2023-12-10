@@ -20,6 +20,7 @@ public class ProbationPeriodServiceImpl implements ProbationPeriodService {
         this.telegramBot = telegramBot;
     }
 
+    @Override
     public Client changeLastDay(Client client, int days) {
         ProbationPeriod probationPeriod = probationPeriodRepository.findByClientId(client.getId());
         if (probationPeriod == null) {
