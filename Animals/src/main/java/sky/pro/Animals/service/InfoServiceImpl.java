@@ -147,15 +147,14 @@ public class InfoServiceImpl implements InfoService {
 
     /**
      * Method for edit standard info messages in DB. <br>
-     * Used repository method {@link JpaRepository#save(Object)} <br>
+     * Used repository method {@link JpaRepository#save(Object)}
      * <hr>
      * Метод для редактирования стандартных информационных сообщений в БД. <br>
-     * Использован метод репозитория {@link JpaRepository#save(Object)} <br>
+     * Использован метод репозитория {@link JpaRepository#save(Object)}
      * <hr>
      *
      * @param info
      * @return name of the edited item / название отредактированного пункта
-     * @see JpaRepository#findById(Object)
      * @see JpaRepository#save(Object)
      */
     @Override
@@ -262,12 +261,12 @@ public class InfoServiceImpl implements InfoService {
      * Method for getting standard info by id. <br>
      * Used repository method {@link InfoRepository#findById(Object)}. <br>
      * <hr>
-     * Метод для получения стандартного сообщения по его id. <br>
+     * Метод для получения стандартного сообщения по id. <br>
      * Использован метод репозитория {@link InfoRepository#findById(Object)}. <br>
      * <hr>
      *
      * @param id
-     * @return Standard info message / Стандартное информационное сообщение
+     * @return Standard info / Стандартное информационное сообщение
      */
     @Override
     public Info getById(Long id) {
