@@ -1,5 +1,6 @@
 package sky.pro.Animals.controller;
 
+import lombok.extern.log4j.Log4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @RestController
+@Log4j
 @RequestMapping(path = "/pet-avatar")
 public class PetAvatarController {
     private final PetAvatarServiceImpl petAvatarService;
@@ -87,11 +89,15 @@ public class PetAvatarController {
      * @see sky.pro.Animals.service.PetAvatarService#uploadAvatar(Long, MultipartFile)
      */
     @PostMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadAvatar(@PathVariable Long id, @RequestParam MultipartFile avatar) throws IOException {
+    public ResponseEntity uploadAvatar(@RequestParam @PathVariable Long id, @RequestParam MultipartFile avatar) throws IOException {
         if (avatar.getSize() >= 1024 * 500) {
             return ResponseEntity.status(400).body("File is too big!");
         }
-        petAvatarService.uploadAvatar(id, avatar);
+        try {
+            petAvatarService.uploadAvatar(id, avatar);
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+        }
         return ResponseEntity.ok().build();
     }
 }
