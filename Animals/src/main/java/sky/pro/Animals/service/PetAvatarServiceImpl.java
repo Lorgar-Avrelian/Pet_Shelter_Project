@@ -1,6 +1,8 @@
 package sky.pro.Animals.service;
 
 import lombok.extern.log4j.Log4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,6 +26,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Log4j
 @Transactional
 public class PetAvatarServiceImpl implements PetAvatarService {
+    Logger log = LoggerFactory.getLogger(PetAvatarServiceImpl.class);
     @Value("${pet.avatar.dir.path}")
     private String petAvatarsDir;
     private final PetServiceImpl petService;
