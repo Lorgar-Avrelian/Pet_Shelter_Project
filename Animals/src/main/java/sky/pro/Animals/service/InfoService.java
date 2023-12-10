@@ -7,11 +7,13 @@ import java.util.Collection;
 public interface InfoService {
     void checkInfo();
 
-    String editInfo(Long id, String editedText);
+    String editInfo(Info info);
 
     Collection<Info> getAllInfo();
 
     String getInfoTextById(Long id);
 
     String getInfoKeyById(Long id);
+
+    Info getById(Long id);
 }

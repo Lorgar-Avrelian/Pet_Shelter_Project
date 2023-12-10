@@ -27,7 +27,7 @@ class PetServiceImplTest {
     void getAll() {
         // Arrange
         Pet pet1 = new Pet(1L, "Fluffy", new Date(2023-11-11), true, PetVariety.cat, null);
-        Pet pet2 = new Pet(2L, "Buddy", new Date(2023-11-11), true, PetVariety.DOG, null);
+        Pet pet2 = new Pet(2L, "Buddy", new Date(2023-11-11), true, PetVariety.dog, null);
         Collection<Pet> mockPetList = Arrays.asList(pet1, pet2);
 
         // Mocking the behavior of the petRepository
@@ -61,7 +61,7 @@ class PetServiceImplTest {
     @Test
     void save() {
         // Arrange
-        Pet pet = new Pet(1L, "Fluffy", new Date(2023-11-11), true, PetVariety.DOG, null);
+        Pet pet = new Pet(1L, "Fluffy", new Date(2023-11-11), true, PetVariety.dog, null);
 
         // Mocking the behavior of the petRepository
         Mockito.when(petRepository.save(pet)).thenReturn(pet);
