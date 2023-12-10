@@ -6,9 +6,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import sky.pro.Animals.entity.Client;
-import sky.pro.Animals.listener.PetShelterTelegramBot;
 import sky.pro.Animals.repository.ClientRepository;
 
 import java.util.Collection;
