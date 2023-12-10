@@ -3,8 +3,6 @@ package sky.pro.Animals.listener;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -39,6 +37,13 @@ import java.util.*;
 import static sky.pro.Animals.model.PetVariety.cat;
 import static sky.pro.Animals.model.PetVariety.dog;
 
+/**
+ * Main class of telegram bot
+ * <p>
+ * <hr>
+ * <p>
+ * Основной класс телеграм бота
+ */
 @Component
 @Log4j
 @EnableScheduling
@@ -207,12 +212,12 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
             GetFile getFile = new GetFile(photos.get(photos.size() - 1).getFileId());
             try {
                 org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
-                downloadFile(file, new java.io.File("photos/photo" + (photos.size() - 1) + ".png"));
+                downloadFile(file, new java.io.File("${daily.report.dir.path=report}" + (photos.size() - 1) + ".png"));
             } catch (TelegramApiException e) {
                 log.error(e.getMessage());
             }
             try {
-                byte[] photoInBytes = Files.readAllBytes(Path.of("photos/photo" + (photos.size() - 1) + ".png"));
+                byte[] photoInBytes = Files.readAllBytes(Path.of("${daily.report.dir.path=report}" + (photos.size() - 1) + ".png"));
                 if (dailyReportStatus.contains(chatId)) {
                     dailyReport(chatId, message, photoInBytes);
                 }
