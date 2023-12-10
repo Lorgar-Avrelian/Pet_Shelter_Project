@@ -206,8 +206,9 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 takeReport(chatId);
             }
         } else if (update.hasMessage() && update.getMessage().hasPhoto()) {
+            System.out.println(update);
             Long chatId = update.getMessage().getChatId();
-            String message = update.getMessage().getText();
+            String message = update.getMessage().getCaption();
             List<PhotoSize> photos = update.getMessage().getPhoto();
             GetFile getFile = new GetFile(photos.get(photos.size() - 1).getFileId());
             try {
@@ -585,7 +586,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, "Ежедневный отчёт успешно отправлен!");
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void dailyForm() {
         schedulerService.updateProbation();
         List<ProbationPeriod> probations = schedulerService.getProbation();
