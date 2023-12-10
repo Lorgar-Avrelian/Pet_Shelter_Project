@@ -206,7 +206,6 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                 takeReport(chatId);
             }
         } else if (update.hasMessage() && update.getMessage().hasPhoto()) {
-            System.out.println(update);
             Long chatId = update.getMessage().getChatId();
             String message = update.getMessage().getCaption();
             List<PhotoSize> photos = update.getMessage().getPhoto();
