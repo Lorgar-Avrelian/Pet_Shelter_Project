@@ -112,10 +112,13 @@ public class PetController {
             client = clientService.getById(clientId);
         }
         Pet pet = new Pet(id, name, birthday, alive, petVariety, client);
-        Collection<Pet> clientPets = clientService.getById(clientId).getPets();
-        clientPets.add(pet);
-        client.setPets(clientPets);
-        clientService.save(client);
+        Collection<Pet> clientPets;
+        if (client != null) {
+            clientPets = clientService.getById(clientId).getPets();
+            clientPets.add(pet);
+            client.setPets(clientPets);
+            clientService.save(client);
+        }
         Pet savedPet = petService.save(pet);
         if (savedPet == null) {
             return ResponseEntity.status(400).build();
@@ -159,10 +162,13 @@ public class PetController {
             client = clientService.getById(clientId);
         }
         Pet pet = new Pet(id, name, birthday, alive, petVariety, client);
-        Collection<Pet> clientPets = clientService.getById(clientId).getPets();
-        clientPets.add(pet);
-        client.setPets(clientPets);
-        clientService.save(client);
+        Collection<Pet> clientPets;
+        if (client != null) {
+            clientPets = clientService.getById(clientId).getPets();
+            clientPets.add(pet);
+            client.setPets(clientPets);
+            clientService.save(client);
+        }
         Pet editedPet = petService.save(pet);
         if (editedPet == null) {
             return ResponseEntity.status(400).build();

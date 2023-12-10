@@ -3,6 +3,7 @@ package sky.pro.Animals.listener;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -48,6 +49,8 @@ import static sky.pro.Animals.model.PetVariety.dog;
 @Log4j
 @EnableScheduling
 public class PetShelterTelegramBot extends TelegramLongPollingBot {
+    @Value("${daily.report.dir.path}")
+    String reportPath;
     private final PetServiceImpl petService;
     private final PetAvatarServiceImpl petAvatarService;
     private final ClientServiceImpl clientService;
@@ -138,7 +141,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                     sendMessage(chatId, infoService.getInfoTextById(4L) + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
                 }
                 case "/driving_directions" -> {
-                    sendMessage(chatId, new URI(infoService.getInfoTextById(5L)).toURL() + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
+                    sendMessage(chatId, infoService.getInfoTextById(5L) + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
                 }
                 case "/car_pass" -> {
                     sendMessage(chatId, infoService.getInfoTextById(6L) + "\n\nДля получения дополнительной информации, пожалуйста, воспользуйтесь Menu бота.");
@@ -212,12 +215,12 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
             GetFile getFile = new GetFile(photos.get(photos.size() - 1).getFileId());
             try {
                 org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
-                downloadFile(file, new java.io.File("${daily.report.dir.path=report}" + (photos.size() - 1) + ".png"));
+                downloadFile(file, new java.io.File(reportPath + (photos.size() - 1) + ".png"));
             } catch (TelegramApiException e) {
                 log.error(e.getMessage());
             }
             try {
-                byte[] photoInBytes = Files.readAllBytes(Path.of("${daily.report.dir.path=report}" + (photos.size() - 1) + ".png"));
+                byte[] photoInBytes = Files.readAllBytes(Path.of(reportPath + (photos.size() - 1) + ".png"));
                 if (dailyReportStatus.contains(chatId)) {
                     dailyReport(chatId, message, photoInBytes);
                 }
@@ -585,7 +588,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, "Ежедневный отчёт успешно отправлен!");
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void dailyForm() {
         schedulerService.updateProbation();
         List<ProbationPeriod> probations = schedulerService.getProbation();

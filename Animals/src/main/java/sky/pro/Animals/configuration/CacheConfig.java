@@ -14,7 +14,7 @@ import java.util.Arrays;
 @EnableScheduling
 public class CacheConfig {
     @Bean
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "0 * * * * *")
     public CacheManager cacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
