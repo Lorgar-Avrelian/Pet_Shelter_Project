@@ -282,6 +282,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         List<Pet> dogsList = petService.getPetListByVariety(dog).stream()
                 .filter(pet -> pet.getClient() == null)
                 .toList();
+        System.out.println(dogsList);
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         for (Pet pet : dogsList) {
