@@ -61,8 +61,8 @@ public class InfoServiceImpl implements InfoService {
     @Override
     public void checkInfo() {
         List<String> infoList = infoRepository.findAll().stream()
-                .map(Info::getKey)
-                .toList();
+                                              .map(Info::getKey)
+                                              .toList();
         if (!infoList.contains("Информация о приюте")) {
             Info info = new Info(1L, "Информация о приюте", "Информация о приюте");
             infoRepository.save(info);
@@ -147,26 +147,21 @@ public class InfoServiceImpl implements InfoService {
 
     /**
      * Method for edit standard info messages in DB. <br>
-     * Used repository method {@link JpaRepository#findById(Object)} <br>
-     * Also used repository method {@link JpaRepository#save(Object)}
+     * Used repository method {@link JpaRepository#save(Object)} <br>
      * <hr>
      * Метод для редактирования стандартных информационных сообщений в БД. <br>
-     * Используется метод репозитория {@link JpaRepository#findById(Object)} <br>
-     * Также использован метод репозитория {@link JpaRepository#save(Object)}
+     * Использован метод репозитория {@link JpaRepository#save(Object)} <br>
      * <hr>
      *
-     * @param id
-     * @param editedText
+     * @param info
      * @return name of the edited item / название отредактированного пункта
      * @see JpaRepository#findById(Object)
      * @see JpaRepository#save(Object)
      */
     @Override
     @CachePut(value = "info", key = "#info.id")
-    public String editInfo(Long id, String editedText) {
+    public String editInfo(Info info) {
         checkInfo();
-        Info info = infoRepository.getById(id);
-        info.setText(editedText);
         infoRepository.save(info);
         return info.getKey() + " изменен(а)";
     }
@@ -261,5 +256,21 @@ public class InfoServiceImpl implements InfoService {
     @Override
     public String getInfoKeyById(Long id) {
         return infoRepository.findById(id).get().getKey();
+    }
+
+    /**
+     * Method for getting standard info by id. <br>
+     * Used repository method {@link InfoRepository#findById(Object)}. <br>
+     * <hr>
+     * Метод для получения стандартного сообщения по его id. <br>
+     * Использован метод репозитория {@link InfoRepository#findById(Object)}. <br>
+     * <hr>
+     *
+     * @param id
+     * @return Standard info message / Стандартное информационное сообщение
+     */
+    @Override
+    public Info getById(Long id) {
+        return infoRepository.findById(id).get();
     }
 }
