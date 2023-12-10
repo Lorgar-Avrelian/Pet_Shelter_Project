@@ -40,24 +40,27 @@ public class InfoController {
 
     /**
      * API for edition of standard ifo with this id. <br>
-     * Used service method {@link InfoService#editInfo(Long, String)}. <br>
+     * Used service method {@link InfoService#editInfo(Info)}. <br>
      * <hr>
      * API для редактирования стандартного сообщения с данным id. <br>
-     * Использован метод сервиса {@link InfoService#editInfo(Long, String)}. <br>
+     * Использован метод сервиса {@link InfoService#editInfo(Info)}. <br>
      * <hr>
      *
      * @param id
      * @param editedText
      * @return Edited info / Отредактированную информацию
-     * @see InfoService#editInfo(Long, String)
+     * @see InfoService#editInfo(Info)
      */
     @PostMapping(path = "/edit")
     public ResponseEntity<String> editInfo(@RequestParam Long id, @RequestParam String editedText) {
-        String info = infoService.editInfo(id, editedText);
-        if (info == null) {
+        Info info = infoService.getById(id);
+        info.setText(editedText);
+        infoService.editInfo(info);
+        String result = infoService.editInfo(info);
+        if (result == null) {
             return ResponseEntity.status(400).build();
         } else {
-            return ResponseEntity.ok().body(info);
+            return ResponseEntity.ok().body(result);
         }
     }
 }
