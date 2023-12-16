@@ -1,13 +1,11 @@
 package sky.pro.Animals.service;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Volunteer;
 import sky.pro.Animals.repository.VolunteerRepository;
 
+import java.sql.Date;
 import java.util.Collection;
 
 /**
@@ -37,7 +35,6 @@ public class VolunteerServiceImpl implements VolunteerService {
      * @see JpaRepository#findAll()
      */
     @Override
-    @Cacheable("volunteer")
     public Collection<Volunteer> getAll() {
         return volunteerRepository.findAll();
     }
@@ -55,16 +52,15 @@ public class VolunteerServiceImpl implements VolunteerService {
      * @see JpaRepository#findById(Object)
      */
     @Override
-    @Cacheable("volunteer")
     public Volunteer getById(Long id) {
         return volunteerRepository.findById(id).get();
     }
 
     /**
-     * Method for saving volunteer in DB. <br>
+     * Method for saving volunteer in DB when edit. <br>
      * Used repository method {@link JpaRepository#save(Object)}
      * <hr>
-     * Метод для сохранения волонтера в БД. <br>
+     * Метод для сохранения волонтера в БД при редактировании. <br>
      * Используется метод репозитория {@link JpaRepository#save(Object)}
      * <hr>
      *
@@ -73,8 +69,37 @@ public class VolunteerServiceImpl implements VolunteerService {
      * @see JpaRepository#save(Object)
      */
     @Override
-    @CachePut(value = "volunteer", key = "#volunteer.id")
     public Volunteer save(Volunteer volunteer) {
+        return volunteerRepository.save(volunteer);
+    }
+
+    /**
+     * Method for saving new volunteer in DB. <br>
+     * Used repository method {@link JpaRepository#save(Object)}
+     * <hr>
+     * Метод для сохранения нового волонтера в БД. <br>
+     * Используется метод репозитория {@link JpaRepository#save(Object)}
+     * <hr>
+     *
+     * @param id
+     * @param fio
+     * @param address
+     * @param birthday
+     * @param passport
+     * @param chatId
+     * @param workPosition
+     * @return saved volunteer / сохраненного волонтера
+     * @see JpaRepository#save(Object)
+     */
+    @Override
+    public Volunteer save(Long id,
+                          String fio,
+                          String address,
+                          Date birthday,
+                          String passport,
+                          Long chatId,
+                          String workPosition) {
+        Volunteer volunteer = new Volunteer(0L, fio, address, birthday, passport, chatId, workPosition);
         return volunteerRepository.save(volunteer);
     }
 
@@ -94,19 +119,9 @@ public class VolunteerServiceImpl implements VolunteerService {
      * @see JpaRepository#findById(Object)
      */
     @Override
-    @CacheEvict("volunteer")
     public Volunteer delete(Long id) {
         Volunteer volunteer = volunteerRepository.getById(id);
         volunteerRepository.delete(volunteer);
         return volunteer;
-    }
-    public Volunteer editVolunteer(Long id, Volunteer volunteer) {
-
-
-        Volunteer vl = volunteerRepository.getById(id);
-        vl.setAddress(volunteer.getAddress());
-        vl.setWorkPosition(volunteer.getWorkPosition());
-
-        return volunteerRepository.save(vl);
     }
 }
