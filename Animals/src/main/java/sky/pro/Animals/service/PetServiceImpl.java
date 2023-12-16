@@ -1,15 +1,14 @@
 package sky.pro.Animals.service;
 
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import sky.pro.Animals.entity.Client;
 import sky.pro.Animals.entity.Pet;
 import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.repository.PetRepository;
 
+import java.sql.Date;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,7 +39,6 @@ public class PetServiceImpl implements PetService {
      * @see JpaRepository#findAll()
      */
     @Override
-    @Cacheable("pet")
     public Collection<Pet> getAll() {
         return petRepository.findAll();
     }
@@ -58,17 +56,16 @@ public class PetServiceImpl implements PetService {
      * @see JpaRepository#findById(Object)
      */
     @Override
-    @Cacheable("pet")
     public Pet getById(Long id) {
         return petRepository.findById(id).get();
     }
 
 
     /**
-     * Method for saving pet in DB. <br>
+     * Method for saving pet in DB when edit. <br>
      * Used repository method {@link JpaRepository#save(Object)}
      * <hr>
-     * Метод для сохранения питомца в БД. <br>
+     * Метод для сохранения питомца в БД при редактировании. <br>
      * Используется метод репозитория {@link JpaRepository#save(Object)}
      * <hr>
      *
@@ -77,8 +74,39 @@ public class PetServiceImpl implements PetService {
      * @see JpaRepository#save(Object)
      */
     @Override
-    @CachePut(value = "pet", key = "#pet.id")
     public Pet save(Pet pet) {
+        return petRepository.save(pet);
+    }
+
+    /**
+     * Method for saving new pet in DB. <br>
+     * Used repository method {@link JpaRepository#save(Object)}
+     * <hr>
+     * Метод для сохранения нового питомца в БД. <br>
+     * Используется метод репозитория {@link JpaRepository#save(Object)}
+     * <hr>
+     *
+     * @param name
+     * @param birthday
+     * @param alive
+     * @param petVariety
+     * @return saved pet / сохраненного питомца
+     * @see JpaRepository#save(Object)
+     */
+    @Override
+    public Pet save(Long id,
+                    String name,
+                    Date birthday,
+                    boolean alive,
+                    PetVariety petVariety,
+                    Client client) {
+        Pet pet = new Pet();
+        pet.setId(id);
+        pet.setName(name);
+        pet.setBirthday(birthday);
+        pet.setAlive(alive);
+        pet.setPetVariety(petVariety);
+        pet.setClient(client);
         return petRepository.save(pet);
     }
 
@@ -98,7 +126,6 @@ public class PetServiceImpl implements PetService {
      * @see JpaRepository#findById(Object)
      */
     @Override
-    @CacheEvict("pet")
     public Pet delete(Long id) {
         Pet pet = petRepository.getById(id);
         petRepository.delete(pet);
@@ -115,7 +142,6 @@ public class PetServiceImpl implements PetService {
      * @return string with a list of animals / строку со списком животных
      */
     @Override
-//    @Cacheable("variety")
     public List<Pet> getPetListByVariety(PetVariety petVariety) {
         return petRepository.findAllByPetVariety(petVariety);
     }

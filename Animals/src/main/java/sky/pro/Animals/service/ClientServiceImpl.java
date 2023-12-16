@@ -1,14 +1,13 @@
 package sky.pro.Animals.service;
 
 import lombok.extern.log4j.Log4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sky.pro.Animals.entity.Client;
+import sky.pro.Animals.entity.Pet;
 import sky.pro.Animals.repository.ClientRepository;
 
+import java.sql.Date;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
@@ -23,9 +22,11 @@ import java.util.NoSuchElementException;
 @Log4j
 public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
+    private final PetServiceImpl petService;
 
-    public ClientServiceImpl(ClientRepository clientRepository) {
+    public ClientServiceImpl(ClientRepository clientRepository, PetServiceImpl petService) {
         this.clientRepository = clientRepository;
+        this.petService = petService;
     }
 
     /**
@@ -40,7 +41,6 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findAll()
      */
     @Override
-    @Cacheable("client")
     public Collection<Client> getAll() {
         return clientRepository.findAll();
     }
@@ -58,7 +58,6 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findById(Object)
      */
     @Override
-    @Cacheable("client")
     public Client getById(Long id) {
         try {
             return clientRepository.findById(id).get();
@@ -69,10 +68,10 @@ public class ClientServiceImpl implements ClientService {
     }
 
     /**
-     * Method for saving client in DB. <br>
+     * Method for saving client in DB when goes edit. <br>
      * Used repository method {@link JpaRepository#save(Object)}
      * <hr>
-     * Метод для сохранения клиента в БД. <br>
+     * Метод для сохранения клиента в БД при редактировании. <br>
      * Используется метод репозитория {@link JpaRepository#save(Object)}
      * <hr>
      *
@@ -81,8 +80,63 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#save(Object)
      */
     @Override
-    @CachePut(value = "client", key = "#client.id")
     public Client save(Client client) {
+        return clientRepository.save(client);
+    }
+
+    /**
+     * Method for saving new client in DB. <br>
+     * Used repository method {@link JpaRepository#save(Object)}
+     * <hr>
+     * Метод для сохранения нового клиента в БД. <br>
+     * Используется метод репозитория {@link JpaRepository#save(Object)}
+     * <hr>
+     *
+     * @param firstName
+     * @param lastName
+     * @param userName
+     * @param address
+     * @param birthday
+     * @param passport
+     * @param chatId
+     * @param firstPetId
+     * @param secondPetId
+     * @param thirdPetId
+     * @return saved client / сохраненного клиента
+     * @see JpaRepository#save(Object)
+     */
+    @Override
+    public Client save(Long id,
+                       String firstName,
+                       String lastName,
+                       String userName,
+                       String address,
+                       Date birthday,
+                       String passport,
+                       Long chatId,
+                       Long firstPetId,
+                       Long secondPetId,
+                       Long thirdPetId) {
+        Client client = new Client();
+        client.setId(0L);
+        client.setFirstName(firstName);
+        client.setLastName(lastName);
+        client.setUserName(userName);
+        client.setAddress(address);
+        client.setBirthday(birthday);
+        client.setPassport(passport);
+        client.setChatId(chatId);
+        Collection<Pet> clientPets = null;
+        if (firstPetId != null) {
+            clientPets.add(petService.getById(firstPetId));
+        }
+        if (secondPetId != null) {
+            clientPets.add(petService.getById(secondPetId));
+        }
+        if (thirdPetId != null) {
+            clientPets.add(petService.getById(thirdPetId));
+        }
+        client.setPets(clientPets);
         return clientRepository.save(client);
     }
 
@@ -102,7 +156,6 @@ public class ClientServiceImpl implements ClientService {
      * @see JpaRepository#findById(Object)
      */
     @Override
-    @CacheEvict("client")
     public Client delete(Long id) {
         Client client = clientRepository.getById(id);
         clientRepository.delete(client);

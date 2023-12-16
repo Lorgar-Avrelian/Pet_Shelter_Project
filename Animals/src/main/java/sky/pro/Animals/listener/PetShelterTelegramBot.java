@@ -28,7 +28,6 @@ import sky.pro.Animals.service.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Date;
@@ -97,7 +96,7 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
                     new BotCommand("/dog_handlers", "Рекомендации по проверенным кинологам для дальнейшего обращения с собакой"),
                     new BotCommand("/may_refuse", "Список причин, почему могут отказать и не дать забрать собаку из приюта"),
                     new BotCommand("/daily_report", "Форма ежедневного отчета")
-            ));
+                                                                  ));
             this.execute(new SetMyCommands(botCommands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
@@ -258,8 +257,8 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         sendMessage.setChatId(chatId);
         sendMessage.setText("Котик ищет хозяина\n");
         List<Pet> catsList = petService.getPetListByVariety(cat).stream()
-                .filter(pet -> pet.getClient() == null)
-                .toList();
+                                       .filter(pet -> pet.getClient() == null)
+                                       .toList();
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
         for (Pet pet : catsList) {
@@ -280,8 +279,8 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         sendMessage.setChatId(chatId);
         sendMessage.setText("Пёсик ищет хозяина\n");
         List<Pet> dogsList = petService.getPetListByVariety(dog).stream()
-                .filter(pet -> pet.getClient() == null)
-                .toList();
+                                       .filter(pet -> pet.getClient() == null)
+                                       .toList();
         System.out.println(dogsList);
         InlineKeyboardMarkup markupInLine = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
@@ -336,8 +335,8 @@ public class PetShelterTelegramBot extends TelegramLongPollingBot {
         previousButton.setText("Предыдущий");
         nextButton.setText("Следующий");
         List<Pet> petList = petService.getPetListByVariety(pet.getPetVariety()).stream()
-                .filter(pet1 -> pet1.getClient() == null)
-                .toList();
+                                      .filter(pet1 -> pet1.getClient() == null)
+                                      .toList();
         int petIndex = 0;
         int previousPetIndex = petList.size() - 1;
         int nextPetIndex = 1;
