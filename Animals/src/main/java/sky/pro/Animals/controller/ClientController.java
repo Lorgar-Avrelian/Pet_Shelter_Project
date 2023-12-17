@@ -239,9 +239,11 @@ public class ClientController {
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Client> deleteClient(@PathVariable Long id) {
         Collection<Pet> clientPets = clientService.getById(id).getPets();
-        for (Pet pet : clientPets) {
-            pet.setClient(null);
-            petService.save(pet);
+        if (clientPets != null) {
+            for (Pet pet : clientPets) {
+                pet.setClient(null);
+                petService.save(pet);
+            }
         }
         Client deletedClient = clientService.delete(id);
         if (deletedClient == null) {
@@ -264,8 +266,8 @@ public class ClientController {
      * @return Client with this id if exist / Клиента, если таковой существует
      * @see ProbationPeriodService#changeLastDay(Client, int)
      */
-    @PutMapping(path = "/add/{days}")
-    public ResponseEntity<Client> addDays(@RequestParam Long id, @RequestParam @PathVariable int days) {
+    @PutMapping(path = "/add")
+    public ResponseEntity<Client> addDays(@RequestParam Long id, @RequestParam int days) {
         Client editedClient;
         try {
             editedClient = clientService.getById(id);
