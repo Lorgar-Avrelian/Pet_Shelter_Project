@@ -105,3 +105,5 @@
 2023-12-17 11:59:56 ERROR PetShelterTelegramBot:102 - Error executing org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands query: [404] Not Found
 2023-12-17 12:02:03 ERROR PetShelterTelegramBot:102 - Error executing org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands query: [404] Not Found
 2023-12-17 12:02:31 ERROR PetShelterTelegramBot:102 - Error executing org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands query: [404] Not Found
+2023-12-17 12:16:39 ERROR PetShelterTelegramBot:102 - Error executing org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands query: [404] Not Found
+2023-12-17 12:18:00 ERROR PetShelterTelegramBot:102 - Error executing org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands query: [404] Not Found
