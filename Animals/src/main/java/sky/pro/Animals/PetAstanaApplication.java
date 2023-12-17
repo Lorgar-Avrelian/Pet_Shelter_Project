@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @OpenAPIDefinition
 @EnableScheduling
-@EnableCaching
+@EnableCaching(proxyTargetClass = true)
 public class PetAstanaApplication {
 
 	public static void main(String[] args) {

@@ -194,11 +194,13 @@ public class PetController {
         infoService.checkInfo();
         Client client = petService.getById(id).getClient();
         if (client != null) {
-            Collection<Pet> clientPets = client.getPets().stream()
-                                               .filter(pet -> !pet.equals(petService.getById(id)))
-                                               .collect(Collectors.toCollection(LinkedList::new));
-            client.setPets(clientPets);
-            clientService.save(client);
+            if (client.getPets() != null) {
+                Collection<Pet> clientPets = client.getPets().stream()
+                                                   .filter(pet -> !pet.equals(petService.getById(id)))
+                                                   .collect(Collectors.toCollection(LinkedList::new));
+                client.setPets(clientPets);
+                clientService.save(client);
+            }
         }
         Pet deletedPet = petService.delete(id);
         if (deletedPet == null) {
