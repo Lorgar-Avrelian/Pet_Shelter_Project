@@ -19,7 +19,7 @@ public class Pet {
     private Date birthday;
     private boolean alive;
     private PetVariety petVariety;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Client client;
 
     public Pet() {

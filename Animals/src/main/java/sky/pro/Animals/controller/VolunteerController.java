@@ -81,7 +81,6 @@ public class VolunteerController {
      * Использован метод сервиса {@link VolunteerService#save(Volunteer)}. <br>
      * <hr>
      *
-     * @param id
      * @param fio
      * @param address
      * @param birthday
@@ -92,16 +91,14 @@ public class VolunteerController {
      * @see VolunteerService#save(Volunteer)
      */
     @PostMapping(path = "/write")
-    public ResponseEntity<Volunteer> writeVolunteer(@RequestParam Long id,
-                                                    @RequestParam String fio,
+    public ResponseEntity<Volunteer> writeVolunteer(@RequestParam String fio,
                                                     @RequestParam String address,
                                                     @RequestParam Date birthday,
                                                     @RequestParam String passport,
                                                     @RequestParam Long chatId,
                                                     @RequestParam String workPosition) {
         infoService.checkInfo();
-        Volunteer volunteer = new Volunteer(id, fio, address, birthday, passport, chatId, workPosition);
-        Volunteer savedVolunteer = volunteerService.save(volunteer);
+        Volunteer savedVolunteer = volunteerService.save(0L, fio, address, birthday, passport, chatId, workPosition);
         if (savedVolunteer == null) {
             return ResponseEntity.status(400).build();
         } else {

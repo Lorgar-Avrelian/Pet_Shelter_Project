@@ -57,11 +57,11 @@ public class SchedulerServiceImpl implements SchedulerService {
     public void updateProbation() {
         List<ProbationPeriod> probationPeriodList = probation.findAll();
         List<Long> petsOnProbation = probationPeriodList.stream()
-                .map(ProbationPeriod::getPetId)
-                .toList();
+                                                        .map(ProbationPeriod::getPetId)
+                                                        .toList();
         List<Pet> pets = petService.getAll().stream()
-                .filter(pet -> pet.getClient() != null)
-                .toList();
+                                   .filter(pet -> pet.getClient() != null)
+                                   .toList();
         for (Pet pet : pets) {
             if (!petsOnProbation.contains(pet.getId())) {
                 ProbationPeriod probationPeriod = new ProbationPeriod();

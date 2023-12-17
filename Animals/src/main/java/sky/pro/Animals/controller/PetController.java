@@ -85,7 +85,6 @@ public class PetController {
      * Использованы методы сервисов {@link ClientService#save(Client)} {@link PetService#save(Pet)}. <br>
      * <hr>
      *
-     * @param id
      * @param name
      * @param birthday
      * @param alive
@@ -96,13 +95,13 @@ public class PetController {
      * @see PetService#save(Pet)
      */
     @PostMapping(path = "/write")
-    public ResponseEntity<Pet> writePet(@RequestParam Long id,
-                                        @RequestParam String name,
+    public ResponseEntity<Pet> writePet(@RequestParam String name,
                                         @RequestParam Date birthday,
                                         @RequestParam boolean alive,
                                         @RequestParam PetVariety petVariety,
                                         @RequestParam(required = false) Long clientId) {
         infoService.checkInfo();
+        Pet savedPet = petService.save(0L, name, birthday, alive, petVariety, null);
         Client client;
         if (clientId == null) {
             client = null;
@@ -111,19 +110,19 @@ public class PetController {
         } else {
             client = clientService.getById(clientId);
         }
-        Pet pet = new Pet(id, name, birthday, alive, petVariety, client);
         Collection<Pet> clientPets;
         if (client != null) {
             clientPets = clientService.getById(clientId).getPets();
-            clientPets.add(pet);
+            clientPets.add(savedPet);
             client.setPets(clientPets);
             clientService.save(client);
+            savedPet.setClient(clientService.getById(clientId));
+            petService.save(savedPet);
         }
-        Pet savedPet = petService.save(pet);
         if (savedPet == null) {
             return ResponseEntity.status(400).build();
         } else {
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body(savedPet);
         }
     }
 
@@ -195,11 +194,13 @@ public class PetController {
         infoService.checkInfo();
         Client client = petService.getById(id).getClient();
         if (client != null) {
-            Collection<Pet> clientPets = client.getPets().stream()
-                    .filter(pet -> !pet.equals(petService.getById(id)))
-                    .collect(Collectors.toCollection(LinkedList::new));
-            client.setPets(clientPets);
-            clientService.save(client);
+            if (client.getPets() != null) {
+                Collection<Pet> clientPets = client.getPets().stream()
+                                                   .filter(pet -> !pet.equals(petService.getById(id)))
+                                                   .collect(Collectors.toCollection(LinkedList::new));
+                client.setPets(clientPets);
+                clientService.save(client);
+            }
         }
         Pet deletedPet = petService.delete(id);
         if (deletedPet == null) {
