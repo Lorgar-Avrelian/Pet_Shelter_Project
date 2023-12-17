@@ -104,7 +104,6 @@ public class ClientController {
      * Использованы методы сервисов {@link ClientService#save(Client)} {@link PetService#save(Pet)}. <br>
      * <hr>
      *
-     * @param id
      * @param firstName
      * @param lastName
      * @param userName
@@ -120,8 +119,7 @@ public class ClientController {
      * @see PetService#save(Pet)
      */
     @PostMapping(path = "/write")
-    public ResponseEntity<Client> writeClient(@RequestParam Long id,
-                                              @RequestParam String firstName,
+    public ResponseEntity<Client> writeClient(@RequestParam String firstName,
                                               @RequestParam String lastName,
                                               @RequestParam String userName,
                                               @RequestParam String address,
@@ -131,34 +129,25 @@ public class ClientController {
                                               @RequestParam(required = false) Long firstPetId,
                                               @RequestParam(required = false) Long secondPetId,
                                               @RequestParam(required = false) Long thirdPetId
-    ) {
+                                             ) {
         infoService.checkInfo();
-        Collection<Pet> clientPets = new ArrayList<>();
-        if (firstPetId == null) {
-            clientPets = null;
-        } else {
-            if (petService.getById(firstPetId) != null) {
-                clientPets.add(petService.getById(firstPetId));
-            }
+        Client savedClient = clientService.save(0L, firstName, lastName, userName, address, birthday, passport, chatId, firstPetId, secondPetId, thirdPetId);
+        Pet pet;
+        if (firstPetId != null) {
+            pet = petService.getById(firstPetId);
+            pet.setClient(savedClient);
+            petService.save(pet);
         }
         if (secondPetId != null) {
-            if (petService.getById(secondPetId) != null) {
-                clientPets.add(petService.getById(secondPetId));
-            }
+            pet = petService.getById(secondPetId);
+            pet.setClient(savedClient);
+            petService.save(pet);
         }
         if (thirdPetId != null) {
-            if (petService.getById(thirdPetId) != null) {
-                clientPets.add(petService.getById(thirdPetId));
-            }
+            pet = petService.getById(thirdPetId);
+            pet.setClient(savedClient);
+            petService.save(pet);
         }
-        Client client = new Client(id, firstName, lastName, userName, address, birthday, passport, chatId, clientPets);
-        if (clientPets != null) {
-            for (Pet pet : clientPets) {
-                pet.setClient(client);
-                petService.save(pet);
-            }
-        }
-        Client savedClient = clientService.save(client);
         if (savedClient == null) {
             return ResponseEntity.status(400).build();
         } else {
@@ -250,9 +239,11 @@ public class ClientController {
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity<Client> deleteClient(@PathVariable Long id) {
         Collection<Pet> clientPets = clientService.getById(id).getPets();
-        for (Pet pet : clientPets) {
-            pet.setClient(null);
-            petService.save(pet);
+        if (clientPets != null) {
+            for (Pet pet : clientPets) {
+                pet.setClient(null);
+                petService.save(pet);
+            }
         }
         Client deletedClient = clientService.delete(id);
         if (deletedClient == null) {
@@ -275,8 +266,8 @@ public class ClientController {
      * @return Client with this id if exist / Клиента, если таковой существует
      * @see ProbationPeriodService#changeLastDay(Client, int)
      */
-    @PutMapping(path = "/add/{days}")
-    public ResponseEntity<Client> addDays(@RequestParam Long id, @RequestParam @PathVariable int days) {
+    @PutMapping(path = "/add")
+    public ResponseEntity<Client> addDays(@RequestParam Long id, @RequestParam int days) {
         Client editedClient;
         try {
             editedClient = clientService.getById(id);

@@ -69,8 +69,8 @@ public class DailyReportServiceImpl implements DailyReportService {
             return null;
         }
         Collection<DailyReportList> dailyReports = getAll().stream()
-                .filter(dailyReportList -> dailyReportList.getClientId().equals(clientId))
-                .collect(Collectors.toCollection(LinkedList::new));
+                                                           .filter(dailyReportList -> dailyReportList.getClientId().equals(clientId))
+                                                           .collect(Collectors.toCollection(LinkedList::new));
         HashMap<Long, Date> dailyReportMap = new HashMap<>();
         for (DailyReportList dailyReport : dailyReports) {
             dailyReportMap.put(dailyReport.getId(), dailyReport.getDate());

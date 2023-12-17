@@ -1,6 +1,5 @@
 package sky.pro.Animals.service;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,126 +7,61 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sky.pro.Animals.entity.Client;
-import sky.pro.Animals.entity.Pet;
-import sky.pro.Animals.model.PetVariety;
 import sky.pro.Animals.repository.ClientRepository;
 
-import java.sql.Date;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
+import static sky.pro.Animals.constants.Constants.*;
 
 @ExtendWith(MockitoExtension.class)
 class ClientServiceImplTest {
-    @InjectMocks
-    private ClientServiceImpl clientService;
-
     @Mock
-    private ClientRepository clientRepository;
+    ClientRepository clientRepository;
+    @InjectMocks
+    ClientServiceImpl clientService;
 
-    Long clientId = 1L;
-    Long chatId = 111l;
-
-    Pet pet1 = new Pet(1l, "Name1", new Date(2023, 10, 10), true
-            , PetVariety.cat, null);
-
-    List<Pet> pets = List.of(pet1);
-
-    Client client1 = new Client(1l, "Fn", "Ln", "Un", "addres"
-            , new Date(2000, 11, 11), "123321", 111l, pets);
-    List<Client> expected = List.of(client1);
-    //данный метод не сработал как надо ,поэтому вернул в первоначальный вид
-//    @BeforeEach
-//    void initTest() throws Exception {
-//        when(clientRepository.findAll()).thenReturn(expected);
-//        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client1));
-//
-//        when(clientRepository.save(client1)).thenReturn(client1);
-//        when(clientRepository.getById(clientId)).thenReturn(client1);
-//
-//        when(clientRepository.findByChatId(chatId)).thenReturn(Optional.of(client1));
-//
-//    }
+    @BeforeEach
+    void init() {
+        lenient().when(clientRepository.findAll()).thenReturn(CLIENTS);
+        lenient().when(clientRepository.findById(anyLong())).thenReturn(Optional.of(CLIENT_5));
+        lenient().when(clientRepository.getById(anyLong())).thenReturn(CLIENT_5);
+        lenient().when(clientRepository.save(any(Client.class))).thenReturn(CLIENT_1);
+        lenient().doNothing().when(clientRepository).delete(any(Client.class));
+        lenient().when(clientRepository.findByChatId(anyLong())).thenReturn(Optional.of(CLIENT_2));
+    }
 
     @Test
     void getAll() {
-
-
-
-        when(clientRepository.findAll()).thenReturn(expected);
-// Calling the service method
-        List<Client> actual = (List<Client>) clientService.getAll();
-
-        // Assertions
-        assertNotNull(actual);
-        assertEquals(1, actual.size());
-        assertEquals(expected, actual);
+        assertEquals(CLIENTS, clientService.getAll());
     }
 
     @Test
     void getById() {
-
-
-        // Mocking the repository behavior
-        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client1));
-
-        // Calling the service method
-        Client actual = clientService.getById(clientId);
-
-        // Assertions
-        assertNotNull(actual);
-        assertEquals(client1, actual);
+        assertEquals(CLIENT_5, clientService.getById(CLIENT_5.getId()));
     }
 
     @Test
     void save() {
-        // Mocking the repository behavior
-        when(clientRepository.save(client1)).thenReturn(client1);
+        assertEquals(CLIENT_1, clientService.save(CLIENT_1));
+    }
 
-        // Calling the service method
-        Client actual = clientService.save(client1);
-
-        // Assertions
-        assertNotNull(actual);
-        assertEquals(client1, actual);
+    @Test
+    void testSave() {
+        assertEquals(CLIENT_1, clientService.save(CLIENT_1.getId(), CLIENT_1.getFirstName(), CLIENT_1.getLastName(), CLIENT_1.getUserName(), CLIENT_1.getAddress(), CLIENT_1.getBirthday(), CLIENT_1.getPassport(), CLIENT_1.getChatId(), null, null, null));
     }
 
     @Test
     void delete() {
-
-        // Mocking the repository behavior
-        when(clientRepository.getById(clientId)).thenReturn(client1);
-
-        // Calling the service method
-        Client actual = clientService.delete(1l);
-
-        // Assertions
-        assertNotNull(actual);
-        assertEquals(client1, actual);
-
-
+        verify(clientRepository, times(0)).delete(CLIENT_2);
+        assertEquals(CLIENT_5, clientService.delete(CLIENT_5.getId()));
     }
 
     @Test
     void getByChatId() {
-        // Mocking the repository behavior
-        when(clientRepository.findByChatId(chatId)).thenReturn(Optional.of(client1));
-
-        // Calling the service method
-        Client actual = clientService.getByChatId(chatId);
-
-        // Assertions
-        assertNotNull(actual);
-        assertEquals(client1, actual);
+        assertEquals(CLIENT_2, clientService.getByChatId(CLIENT_2.getChatId()));
     }
 }
-
-
-
-
-
-
